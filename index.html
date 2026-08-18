@@ -90,7 +90,20 @@
             當前觸發模式：<span id="mode-badge" class="status-badge" style="background:#2563eb; color:#fff;">未初始化</span>
         </div>
     </div>
-
+    <!-- 網頁內彈出視窗 Modal -->
+    <div id="custom-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:#12131c; border:2px solid #00ffcc; padding:25px; border-radius:12px; text-align:center; box-shadow:0 0 20px #00ffcc; color:#fff; max-width:360px;">
+            <h3 style="color:#00ffcc; margin-top:0;">系統提示</h3>
+            <p id="modal-msg" style="font-size:15px; margin:15px 0 20px; color:#ddd;"></p>
+            <button onclick="closeModal()" style="background:#00ffcc; color:#000; border:none; padding:8px 30px; border-radius:20px; cursor:pointer; font-weight:bold;">確定</button>
+        </div>
+    </div>
+    
+    <!-- 修正歷史紀錄表格容器 ID -->
+    <tbody id="log-table-body">
+        <!-- 動態渲染數據 -->
+    </tbody>
+    
     <!-- 自訂模式參數設定區 -->
     <div class="card">
         <h2>⚙️ 自訂模式設定（點擊更新可套用自訂顯示名稱與算式）</h2>
@@ -179,11 +192,93 @@
 </div>
 
 <script>
-    // 1. 全域變數宣告
     let experimentLogs = [];
+    
+    function runBenchmark() {
+        const config = getActiveConfig();
+        const dataSize = parseInt(document.getElementById('cfg-data-size').value) || 100000;
+        
+        const mockData = Array.from({length: dataSize}, (_, i) => ({ id: i, text: "entity_" + i }));
+        const targetStr = "entity_" + (dataSize - 1);
+    
+        const startTime = performance.now();
+    
+        if (config.key === "PERFORMANCE") {
+            let res = [];
+            for (let i = 0; i < mockData.length; i++) {
+                let temp = mockData[i].text.toUpperCase().toLowerCase();
+                if (temp.includes(targetStr)) res.push(mockData[i]);
+            }
+        } else if (config.key === "BALANCED") {
+            let res = mockData.find(item => item.text.indexOf(targetStr) !== -1);
+        } else if (config.key === "ECO") {
+            let res = mockData.find(item => item.text === targetStr);
+        } else {
+            let res = mockData[dataSize - 1];
+        }
+    
+        const endTime = performance.now();
+        const durationMs = endTime - startTime;
+    
+        const timeInHours = (durationMs / 1000) / 3600;
+        const energyKWh = (config.watt * timeInHours) / 1000;
+        const mgCO2e = energyKWh * 494000; 
+    
+        // 更新即時數據顯示
+        document.getElementById('res-time').innerText = durationMs.toFixed(2);
+        document.getElementById('res-algo').innerText = config.algo;
+        document.getElementById('res-watt').innerText = config.watt.toFixed(1);
+        document.getElementById('res-carbon').innerText = mgCO2e.toFixed(4);
+    
+        // 寫入紀錄陣列與更新表格
+        const logEntry = {
+            id: experimentLogs.length + 1,
+            mode: config.name,
+            size: dataSize,
+            time: durationMs.toFixed(2),
+            watt: config.watt.toFixed(1),
+            carbon: mgCO2e.toFixed(4)
+        };
+        experimentLogs.push(logEntry);
+        renderTable();
+    }
+    
+    function renderTable() {
+        const tbody = document.getElementById('log-table-body');
+        if (experimentLogs.length === 0) return;
+        
+        tbody.innerHTML = experimentLogs.map(log => `
+            <tr style="border-bottom: 1px solid #1e293b;">
+                <td style="padding:8px;">${log.id}</td>
+                <td style="padding:8px; color:var(--accent);">${log.mode}</td>
+                <td style="padding:8px;">${log.size.toLocaleString()}</td>
+                <td style="padding:8px;">${log.time} ms</td>
+                <td style="padding:8px;">${log.watt} W</td>
+                <td style="padding:8px; color:#6366f1;">${log.carbon}</td>
+            </tr>
+        `).join('');
+    }
+    
+    function exportCSV() {
+        if (experimentLogs.length === 0) {
+            alert("請先執行至少一次模擬運算以產生數據！");
+            return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,ID,Mode,DataSize,Time_ms,Watt_W,Carbon_mgCO2e\n";
+        experimentLogs.forEach(row => {
+            csvContent += `${row.id},"${row.mode}",${row.size},${row.time},${row.watt},${row.carbon}\n`;
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "neon_survivor_telemetry_data.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
     let currentBattery = 1.0;
 
-    // 2. 電量滑桿事件監聽
     const batterySlider = document.getElementById('mock-battery');
     batterySlider.addEventListener('input', (e) => {
         currentBattery = e.target.value / 100;
@@ -191,7 +286,6 @@
         updateCurrentMode();
     });
 
-    // 3. 取得當前模式對應的參數設定
     function getActiveConfig() {
         if (currentBattery > 0.50) {
             return {
@@ -228,7 +322,6 @@
         }
     }
 
-    // 4. 更新 UI 上的當前模式標籤
     function updateCurrentMode() {
         const config = getActiveConfig();
         const badge = document.getElementById('mode-badge');
@@ -236,7 +329,6 @@
         badge.style.backgroundColor = config.badgeColor;
     }
 
-    // 5. 執行模擬運算並完整紀錄歷史數據
     function runBenchmark() {
         const config = getActiveConfig();
         const dataSize = parseInt(document.getElementById('cfg-data-size').value) || 100000;
@@ -267,65 +359,16 @@
         // 計算 SCI 碳足跡推估值
         const timeInHours = (durationMs / 1000) / 3600;
         const energyKWh = (config.watt * timeInHours) / 1000;
-        const mgCO2e = energyKWh * 494000; // 台灣電力碳排係數
+        const mgCO2e = energyKWh * 494000; // 台灣電力碳排係數 (約 0.494 kgCO2e/kWh)
 
-        // A. 更新卡片即時數據
+        // 呈現數據
         document.getElementById('res-time').innerText = durationMs.toFixed(2);
         document.getElementById('res-algo').innerText = config.algo;
         document.getElementById('res-watt').innerText = config.watt.toFixed(1);
         document.getElementById('res-carbon').innerText = mgCO2e.toFixed(4);
-
-        // B. 寫入歷史紀錄陣列並更新表格
-        const logEntry = {
-            id: experimentLogs.length + 1,
-            mode: config.name,
-            size: dataSize,
-            time: durationMs.toFixed(2),
-            watt: config.watt.toFixed(1),
-            carbon: mgCO2e.toFixed(4)
-        };
-        experimentLogs.push(logEntry);
-        renderTable();
     }
 
-    // 6. 渲染歷史紀錄表格
-    function renderTable() {
-        const tbody = document.getElementById('log-table-body');
-        if (experimentLogs.length === 0) return;
-        
-        tbody.innerHTML = experimentLogs.map(log => `
-            <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding:8px;">${log.id}</td>
-                <td style="padding:8px; color:var(--accent);">${log.mode}</td>
-                <td style="padding:8px;">${log.size.toLocaleString()}</td>
-                <td style="padding:8px;">${log.time} ms</td>
-                <td style="padding:8px;">${log.watt} W</td>
-                <td style="padding:8px; color:#6366f1;">${log.carbon}</td>
-            </tr>
-        `).join('');
-    }
-
-    // 7. 匯出 CSV 檔案
-    function exportCSV() {
-        if (experimentLogs.length === 0) {
-            alert("請先執行至少一次模擬運算以產生數據！");
-            return;
-        }
-        let csvContent = "data:text/csv;charset=utf-8,ID,Mode,DataSize,Time_ms,Watt_W,Carbon_mgCO2e\n";
-        experimentLogs.forEach(row => {
-            csvContent += `${row.id},"${row.mode}",${row.size},${row.time},${row.watt},${row.carbon}\n`;
-        });
-        
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "green_coding_telemetry_data.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    // 8. 頁面初始化
+    // 初始化頁面狀態
     updateCurrentMode();
 </script>
 
