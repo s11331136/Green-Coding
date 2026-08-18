@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>綠色軟體工程 (Green Coding)</title>
+    <title>綠色軟體工程 (Green Coding) 與使用者監測平台</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -59,13 +59,13 @@
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .metrics-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 12px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 12px;
         }
         .metric-box {
-            background: #0f172a; border: 1px solid var(--border); padding: 16px; border-radius: 8px; text-align: center;
+            background: #0f172a; border: 1px solid var(--border); padding: 14px; border-radius: 8px; text-align: center;
         }
-        .metric-label { font-size: 0.85em; color: #94a3b8; }
-        .metric-val { font-size: 1.5em; font-weight: bold; color: var(--accent); margin-top: 6px; word-break: break-all; }
+        .metric-label { font-size: 0.8em; color: #94a3b8; }
+        .metric-val { font-size: 1.35em; font-weight: bold; color: var(--accent); margin-top: 4px; word-break: break-all; }
 
         .mode-settings-block {
             background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #1e293b;
@@ -76,8 +76,8 @@
 <body>
 
 <div class="container">
-    <h1>🌱 綠色軟體工程 Green Coding</h1>
-    <div class="subtitle">續航力感知之自適應 Eco-Mode 演算法調包實力測試</div>
+    <h1>🌱 綠色軟體工程與使用者體驗遙測平台</h1>
+    <div class="subtitle">續航力感知之自適應 Eco-Mode 演算法能耗與體驗 (QoE) 跨領域研究</div>
 
     <!-- 裝置與模擬電量控制 -->
     <div class="card">
@@ -90,6 +90,7 @@
             當前觸發模式：<span id="mode-badge" class="status-badge" style="background:#2563eb; color:#fff;">未初始化</span>
         </div>
     </div>
+
     <!-- 網頁內彈出視窗 Modal -->
     <div id="custom-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; justify-content:center; align-items:center;">
         <div style="background:#12131c; border:2px solid #00ffcc; padding:25px; border-radius:12px; text-align:center; box-shadow:0 0 20px #00ffcc; color:#fff; max-width:360px;">
@@ -99,14 +100,9 @@
         </div>
     </div>
     
-    <!-- 修正歷史紀錄表格容器 ID -->
-    <tbody id="log-table-body">
-        <!-- 動態渲染數據 -->
-    </tbody>
-    
     <!-- 自訂模式參數設定區 -->
     <div class="card">
-        <h2>⚙️ 自訂模式設定（點擊更新可套用自訂顯示名稱與算式）</h2>
+        <h2>⚙️ 自訂模式參數設定</h2>
         
         <div class="mode-settings-block">
             <div class="mode-title">1. 高效能模式（電量 > 50%）</div>
@@ -152,39 +148,37 @@
 
     <!-- 測試執行與成果採集 -->
     <div class="card">
-        <h2>⚡ 運算實驗與能耗數據採集</h2>
+        <h2>⚡ 運算實驗與能耗/體驗數據採集</h2>
         <div style="display: flex; gap: 10px; margin-bottom: 12px;">
             <button class="btn" onclick="runBenchmark()">執行模擬運算並紀錄數據</button>
-    
             <button class="btn" onclick="exportCSV()" style="background:#6366f1; color:#fff;">匯出實驗數據 (CSV)</button>
-    
         </div>
     
         <div class="metrics-grid">
             <div class="metric-box"><div class="metric-label">執行時間</div><div class="metric-val" id="res-time">0 <span style="font-size:0.5em;">ms</span></div></div>
-    
-            <div class="metric-box"><div class="metric-label">採用的演算法</div><div class="metric-val" id="res-algo" style="font-size:0.95em;">無</div></div>
-    
+            <div class="metric-box"><div class="metric-label">採用的演算法</div><div class="metric-val" id="res-algo" style="font-size:0.85em;">無</div></div>
             <div class="metric-box"><div class="metric-label">推估功耗</div><div class="metric-val" id="res-watt">0 <span style="font-size:0.5em;">W</span></div></div>
-    
             <div class="metric-box"><div class="metric-label">預估碳排放 (SCI)</div><div class="metric-val" id="res-carbon" style="color:#6366f1;">0 <span style="font-size:0.5em;">mgCO2e</span></div></div>
-    
+            <div class="metric-box"><div class="metric-label">體驗品質 (QoE 指數)</div><div class="metric-val" id="res-qoe" style="color:#ffcc00;">100 <span style="font-size:0.5em;">%</span></div></div>
         </div>
     
         <!-- 歷史紀錄表格 -->
         <h3 style="margin-top:20px; color:var(--accent); font-size:1em;">📊 實驗歷史紀錄 log</h3>
-    
         <div style="overflow-x:auto;">
             <table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:0.85em; text-align:left;">
                 <thead>
                     <tr style="border-bottom: 1px solid var(--border); color:#94a3b8;">
-                        <th style="padding:8px;">#</th><th style="padding:8px;">觸發模式</th><th style="padding:8px;">資料量 (N)</th><th style="padding:8px;">耗時 (ms)</th><th style="padding:8px;">預估功耗 (W)</th><th style="padding:8px;">SCI (mgCO2e)</th>
-    
+                        <th style="padding:8px;">#</th>
+                        <th style="padding:8px;">觸發模式</th>
+                        <th style="padding:8px;">資料量 (N)</th>
+                        <th style="padding:8px;">耗時 (ms)</th>
+                        <th style="padding:8px;">功耗 (W)</th>
+                        <th style="padding:8px;">SCI (mgCO2e)</th>
+                        <th style="padding:8px;">QoE (%)</th>
                     </tr>
                 </thead>
                 <tbody id="log-table-body">
-                    <tr><td colspan="6" style="padding:12px; text-align:center; color:#64748b;">尚無實驗數據，請點擊上方執行按鈕</td></tr>
-    
+                    <tr><td colspan="7" style="padding:12px; text-align:center; color:#64748b;">尚無實驗數據，請點擊上方執行按鈕</td></tr>
                 </tbody>
             </table>
         </div>
@@ -193,90 +187,6 @@
 
 <script>
     let experimentLogs = [];
-    
-    function runBenchmark() {
-        const config = getActiveConfig();
-        const dataSize = parseInt(document.getElementById('cfg-data-size').value) || 100000;
-        
-        const mockData = Array.from({length: dataSize}, (_, i) => ({ id: i, text: "entity_" + i }));
-        const targetStr = "entity_" + (dataSize - 1);
-    
-        const startTime = performance.now();
-    
-        if (config.key === "PERFORMANCE") {
-            let res = [];
-            for (let i = 0; i < mockData.length; i++) {
-                let temp = mockData[i].text.toUpperCase().toLowerCase();
-                if (temp.includes(targetStr)) res.push(mockData[i]);
-            }
-        } else if (config.key === "BALANCED") {
-            let res = mockData.find(item => item.text.indexOf(targetStr) !== -1);
-        } else if (config.key === "ECO") {
-            let res = mockData.find(item => item.text === targetStr);
-        } else {
-            let res = mockData[dataSize - 1];
-        }
-    
-        const endTime = performance.now();
-        const durationMs = endTime - startTime;
-    
-        const timeInHours = (durationMs / 1000) / 3600;
-        const energyKWh = (config.watt * timeInHours) / 1000;
-        const mgCO2e = energyKWh * 494000; 
-    
-        // 更新即時數據顯示
-        document.getElementById('res-time').innerText = durationMs.toFixed(2);
-        document.getElementById('res-algo').innerText = config.algo;
-        document.getElementById('res-watt').innerText = config.watt.toFixed(1);
-        document.getElementById('res-carbon').innerText = mgCO2e.toFixed(4);
-    
-        // 寫入紀錄陣列與更新表格
-        const logEntry = {
-            id: experimentLogs.length + 1,
-            mode: config.name,
-            size: dataSize,
-            time: durationMs.toFixed(2),
-            watt: config.watt.toFixed(1),
-            carbon: mgCO2e.toFixed(4)
-        };
-        experimentLogs.push(logEntry);
-        renderTable();
-    }
-    
-    function renderTable() {
-        const tbody = document.getElementById('log-table-body');
-        if (experimentLogs.length === 0) return;
-        
-        tbody.innerHTML = experimentLogs.map(log => `
-            <tr style="border-bottom: 1px solid #1e293b;">
-                <td style="padding:8px;">${log.id}</td>
-                <td style="padding:8px; color:var(--accent);">${log.mode}</td>
-                <td style="padding:8px;">${log.size.toLocaleString()}</td>
-                <td style="padding:8px;">${log.time} ms</td>
-                <td style="padding:8px;">${log.watt} W</td>
-                <td style="padding:8px; color:#6366f1;">${log.carbon}</td>
-            </tr>
-        `).join('');
-    }
-    
-    function exportCSV() {
-        if (experimentLogs.length === 0) {
-            alert("請先執行至少一次模擬運算以產生數據！");
-            return;
-        }
-        let csvContent = "data:text/csv;charset=utf-8,ID,Mode,DataSize,Time_ms,Watt_W,Carbon_mgCO2e\n";
-        experimentLogs.forEach(row => {
-            csvContent += `${row.id},"${row.mode}",${row.size},${row.time},${row.watt},${row.carbon}\n`;
-        });
-        
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "neon_survivor_telemetry_data.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
     let currentBattery = 1.0;
 
     const batterySlider = document.getElementById('mock-battery');
@@ -286,38 +196,51 @@
         updateCurrentMode();
     });
 
+    function showModal(msg) {
+        document.getElementById('modal-msg').innerText = msg;
+        document.getElementById('custom-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('custom-modal').style.display = 'none';
+    }
+
     function getActiveConfig() {
         if (currentBattery > 0.50) {
             return {
                 key: "PERFORMANCE",
                 name: document.getElementById('cfg-p-name').value,
                 algo: document.getElementById('cfg-p-algo').value,
-                watt: parseFloat(document.getElementById('cfg-p-watt').value),
-                badgeColor: "#2563eb"
+                watt: parseFloat(document.getElementById('cfg-p-watt').value) || 15.0,
+                badgeColor: "#2563eb",
+                qoeBase: 100
             };
         } else if (currentBattery > 0.25) {
             return {
                 key: "BALANCED",
                 name: document.getElementById('cfg-b-name').value,
                 algo: document.getElementById('cfg-b-algo').value,
-                watt: parseFloat(document.getElementById('cfg-b-watt').value),
-                badgeColor: "#d97706"
+                watt: parseFloat(document.getElementById('cfg-b-watt').value) || 8.5,
+                badgeColor: "#d97706",
+                qoeBase: 88
             };
         } else if (currentBattery > 0.10) {
             return {
                 key: "ECO",
                 name: document.getElementById('cfg-e-name').value,
                 algo: document.getElementById('cfg-e-algo').value,
-                watt: parseFloat(document.getElementById('cfg-e-watt').value),
-                badgeColor: "#059669"
+                watt: parseFloat(document.getElementById('cfg-e-watt').value) || 3.5,
+                badgeColor: "#059669",
+                qoeBase: 72
             };
         } else {
             return {
                 key: "ULTRA_ECO",
                 name: document.getElementById('cfg-u-name').value,
                 algo: document.getElementById('cfg-u-algo').value,
-                watt: parseFloat(document.getElementById('cfg-u-watt').value),
-                badgeColor: "#047857"
+                watt: parseFloat(document.getElementById('cfg-u-watt').value) || 1.2,
+                badgeColor: "#047857",
+                qoeBase: 55
             };
         }
     }
@@ -338,7 +261,7 @@
 
         const startTime = performance.now();
 
-        // 模擬不同複雜度的演算流程
+        // 模擬不同複雜度演算法
         if (config.key === "PERFORMANCE") {
             let res = [];
             for (let i = 0; i < mockData.length; i++) {
@@ -356,16 +279,70 @@
         const endTime = performance.now();
         const durationMs = endTime - startTime;
 
-        // 計算 SCI 碳足跡推估值
+        // 計算 SCI 碳足跡推估值與 QoE 指數
         const timeInHours = (durationMs / 1000) / 3600;
         const energyKWh = (config.watt * timeInHours) / 1000;
         const mgCO2e = energyKWh * 494000; // 台灣電力碳排係數 (約 0.494 kgCO2e/kWh)
+        
+        // 估算使用者體驗品質 (QoE %)，結合耗時延遲扣分
+        const latencyPenalty = Math.min(20, durationMs / 10);
+        const qoeScore = Math.max(10, Math.round(config.qoeBase - latencyPenalty));
 
-        // 呈現數據
+        // 即時呈現數據
         document.getElementById('res-time').innerText = durationMs.toFixed(2);
         document.getElementById('res-algo').innerText = config.algo;
         document.getElementById('res-watt').innerText = config.watt.toFixed(1);
         document.getElementById('res-carbon').innerText = mgCO2e.toFixed(4);
+        document.getElementById('res-qoe').innerText = qoeScore;
+
+        // 寫入歷史紀錄
+        const logEntry = {
+            id: experimentLogs.length + 1,
+            mode: config.name,
+            size: dataSize,
+            time: durationMs.toFixed(2),
+            watt: config.watt.toFixed(1),
+            carbon: mgCO2e.toFixed(4),
+            qoe: qoeScore
+        };
+        experimentLogs.push(logEntry);
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('log-table-body');
+        if (experimentLogs.length === 0) return;
+        
+        tbody.innerHTML = experimentLogs.map(log => `
+            <tr style="border-bottom: 1px solid #1e293b;">
+                <td style="padding:8px;">${log.id}</td>
+                <td style="padding:8px; color:var(--accent);">${log.mode}</td>
+                <td style="padding:8px;">${log.size.toLocaleString()}</td>
+                <td style="padding:8px;">${log.time} ms</td>
+                <td style="padding:8px;">${log.watt} W</td>
+                <td style="padding:8px; color:#6366f1;">${log.carbon}</td>
+                <td style="padding:8px; color:#ffcc00; font-weight:bold;">${log.qoe}%</td>
+            </tr>
+        `).join('');
+    }
+
+    function exportCSV() {
+        if (experimentLogs.length === 0) {
+            showModal("請先執行至少一次模擬運算以產生數據！");
+            return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,ID,Mode,DataSize,Time_ms,Watt_W,Carbon_mgCO2e,QoE_Percent\n";
+        experimentLogs.forEach(row => {
+            csvContent += `${row.id},"${row.mode}",${row.size},${row.time},${row.watt},${row.carbon},${row.qoe}\n`;
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "green_coding_telemetry_data.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     // 初始化頁面狀態
