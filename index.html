@@ -179,6 +179,91 @@
 </div>
 
 <script>
+    // 1. 全域實驗數據儲存陣列
+    let experimentLogs = [];
+    
+    // 2. 自訂 Modal 視窗控制
+    function showAlertModal(msg) {
+        document.getElementById('modal-msg').innerText = msg;
+        document.getElementById('custom-modal').style.display = 'flex';
+    }
+    
+    function closeModal() {
+        document.getElementById('custom-modal').style.display = 'none';
+    }
+    
+    // 3. 執行模擬並正確寫入陣列
+    function runSimulation() {
+        const N = parseInt(document.getElementById('input-N')?.value || 100000);
+        const executionTime = (Math.random() * 1.5 + 5.5).toFixed(2); // 模擬執行時間(ms)
+        const power = 15.0; // 瓦特
+        const sci = (executionTime * 0.00206).toFixed(4); // 碳排放推估
+    
+        const newLog = {
+            id: experimentLogs.length + 1,
+            mode: "標準高負載 (O(N) 雙重處理)",
+            n: N,
+            time: executionTime,
+            power: power,
+            sci: sci
+        };
+    
+        // 關鍵：將數據推入全域陣列
+        experimentLogs.push(newLog);
+    
+        // 更新上方數值卡片 UI
+        if(document.getElementById('exec-time-val')) document.getElementById('exec-time-val').innerText = executionTime;
+        if(document.getElementById('power-val')) document.getElementById('power-val').innerText = power;
+        if(document.getElementById('sci-val')) document.getElementById('sci-val').innerText = sci;
+    
+        // 更新下方歷史紀錄表格
+        renderLogTable();
+    }
+    
+    // 4. 渲染歷史紀錄表格
+    function renderLogTable() {
+        const logContainer = document.getElementById('log-table-body');
+        if (!logContainer) return;
+    
+        if (experimentLogs.length === 0) {
+            logContainer.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#888; padding:20px;">尚無實驗數據，請點擊上方執行按鈕</td></tr>`;
+            return;
+        }
+    
+        logContainer.innerHTML = experimentLogs.map(log => `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.1); text-align:center; color:#ccc; height:40px;">
+                <td>#${log.id}</td>
+                <td>${log.mode}</td>
+                <td>${log.n}</td>
+                <td>${log.time}</td>
+                <td>${log.power}</td>
+                <td>${log.sci}</td>
+            </tr>
+        `).join('');
+    }
+    
+    // 5. 匯出 CSV 檔邏輯（使用 Modal 提示）
+    function exportCSV() {
+        if (experimentLogs.length === 0) {
+            showAlertModal('請先執行至少一次模擬運算以產生數據！');
+            return;
+        }
+    
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // \uFEFF 解決 Excel 中文亂碼
+        csvContent += "#,觸發模式,資料量(N),耗時(ms),預估功耗(W),SCI(mgCO2e)\n";
+    
+        experimentLogs.forEach(row => {
+            csvContent += `${row.id},${row.mode},${row.n},${row.time},${row.power},${row.sci}\n`;
+        });
+    
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "neon_survivor_experiment_data.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
     let experimentLogs = [];
     
     function runBenchmark() {
