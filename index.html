@@ -194,7 +194,7 @@
             <button class="btn" style="margin-top:12px;" onclick="runGreenBenchmark()">執行 Green Coding 模擬運算</button>
         </div>
 
-        // AI Prompt 節能對比矩陣執行器
+        
         <!-- 🤖 AI Prompt 節能對比矩陣卡片 -->
         <div class="card">
             <h2 class="green-header">🤖 AI Prompt 節能對比矩陣 (Green Prompt Engineering)</h2>
@@ -533,50 +533,7 @@
         document.getElementById('res-green-carbon').innerText = mgCO2e.toFixed(4) + " mgCO2e";
         document.getElementById('res-green-qoe').innerText = qoeScore + " %";
 
-        function runPromptBenchmark() {
-            const promptType = document.getElementById('cfg-prompt-type').value;
-            const size = parseInt(document.getElementById('cfg-prompt-size').value) || 30000;
-            const testData = Array.from({length: size}, () => Math.floor(Math.random() * 1000));
         
-            const start = performance.now();
-            let watt = 15.0; // 預估晶片功率 (W)
-        
-            // 模擬 4 種 AI 指令產出的演算法執行過程
-            if (promptType === 'Baseline') {
-                watt = 15.0; // 高 CPU 負載
-                testData.filter((item, index) => testData.indexOf(item) === index);
-            } else if (promptType === 'Speed') {
-                watt = 10.5; // 快取高記憶體
-                Array.from(new Set(testData));
-            } else if (promptType === 'RAM') {
-                watt = 8.0; // 原地排序，中負載
-                testData.slice().sort((a,b)=>a-b);
-            } else { // Green Prompt
-                watt = 3.5; // 低 CPU 循環 Hash Map 搜尋
-                const map = new Map();
-                for(let i=0; i<testData.length; i++) map.set(testData[i], true);
-            }
-        
-            const duration = performance.now() - start;
-            const energyKWh = (watt * (duration / 1000 / 3600)) / 1000;
-            const sci = energyKWh * 494000; // mgCO2e (電力排碳係數 0.494 kg/kWh)[cite: 3]
-        
-            // 更新面板數據並寫入歷史紀錄 A[cite: 3]
-            document.getElementById('res-green-time').innerText = duration.toFixed(2) + " ms";
-            document.getElementById('res-green-watt').innerText = watt.toFixed(1) + " W";
-            document.getElementById('res-green-carbon').innerText = sci.toFixed(4) + " mgCO2e";
-        
-            logsA.push({
-                id: logsA.length + 1,
-                mode: `Prompt: ${promptType}`,
-                size: size,
-                time: duration.toFixed(2) + " ms",
-                watt: watt.toFixed(1) + " W",
-                carbon: sci.toFixed(4),
-                qoe: promptType === 'Baseline' ? '45%' : '95%'
-            });
-            renderTableA();
-        }
 
         // 寫入區塊 A Log
         logsA.push({
@@ -590,7 +547,60 @@
         });
         renderTableA();
     }
-
+    // 獨立於 <script> 內部的完整函數
+    function runPromptBenchmark() {
+        const promptType = document.getElementById('cfg-prompt-type').value;
+        const size = parseInt(document.getElementById('cfg-prompt-size').value) || 30000;
+        const testData = Array.from({length: size}, () => Math.floor(Math.random() * 1000));
+    
+        const start = performance.now();
+        let watt = 15.0; // 預估晶片功率 (W)
+        let algoName = "";
+    
+        // 模擬 4 種 AI 指令產出的演算法執行過程
+        if (promptType === 'Baseline') {
+            watt = 15.0;
+            algoName = "Baseline: 巢狀搜尋 O(N²)";
+            testData.filter((item, index) => testData.indexOf(item) === index);
+        } else if (promptType === 'Speed') {
+            watt = 10.5;
+            algoName = "Speed: ES6 Set 快取 O(N)";
+            Array.from(new Set(testData));
+        } else if (promptType === 'RAM') {
+            watt = 8.0;
+            algoName = "RAM: In-place 排序雙指標";
+            testData.slice().sort((a, b) => a - b);
+        } else { // Green Prompt
+            watt = 3.5;
+            algoName = "Green: Hash Map 惰性比對";
+            const map = new Map();
+            for (let i = 0; i < testData.length; i++) map.set(testData[i], true);
+        }
+    
+        const duration = performance.now() - start;
+        const energyKWh = (watt * (duration / 1000 / 3600)) / 1000;
+        const sci = energyKWh * 494000; // mgCO2e (電力排碳係數 0.494 kg/kWh)
+        const qoeScore = promptType === 'Baseline' ? 45 : 95;
+    
+        // 更新面板數據
+        document.getElementById('res-green-time').innerText = duration.toFixed(2) + " ms";
+        document.getElementById('res-green-algo').innerText = algoName;
+        document.getElementById('res-green-watt').innerText = watt.toFixed(1) + " W";
+        document.getElementById('res-green-carbon').innerText = sci.toFixed(4) + " mgCO2e";
+        document.getElementById('res-green-qoe').innerText = qoeScore + " %";
+    
+        // 寫入區塊 A 歷史紀錄 Log
+        logsA.push({
+            id: logsA.length + 1,
+            mode: `Prompt: ${promptType}`,
+            size: size,
+            time: duration.toFixed(2) + " ms",
+            watt: watt.toFixed(1) + " W",
+            carbon: sci.toFixed(4),
+            qoe: qoeScore + "%"
+        });
+        renderTableA();
+    }
 
     // --- 區塊 B-1：碰撞與能耗 邏輯 ---
     function runCollisionSim() {
