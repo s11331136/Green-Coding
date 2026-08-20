@@ -194,6 +194,34 @@
             <button class="btn" style="margin-top:12px;" onclick="runGreenBenchmark()">執行 Green Coding 模擬運算</button>
         </div>
 
+        // AI Prompt 節能對比矩陣執行器
+        <!-- 🤖 AI Prompt 節能對比矩陣卡片 -->
+        <div class="card">
+            <h2 class="green-header">🤖 AI Prompt 節能對比矩陣 (Green Prompt Engineering)</h2>
+            <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 12px;">
+                評測相同業務需求下，下達不同 AI 重構指令（Prompt）對演算法 CPU 能耗與碳排放的影響。
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>選擇測試 Prompt 變因</label>
+                    <select id="cfg-prompt-type">
+                        <option value="Baseline">版本 A (Baseline)：未優化原始代碼 O(N²)</option>
+                        <option value="Speed">指令 B (Speed Prompt)：「執行速度最快為目標」</option>
+                        <option value="RAM">指令 C (RAM Prompt)：「記憶體佔用最少為目標」</option>
+                        <option value="Green" selected>指令 D (Green Prompt)：「CPU 功率與綠色節能為目標」</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>資料陣列筆數 (N)</label>
+                    <input type="number" id="cfg-prompt-size" value="30000" step="5000">
+                </div>
+            </div>
+            <button class="btn" style="background:#10b981; color:#000; margin-top:8px;" onclick="runPromptBenchmark()">
+                執行 AI Prompt 重構跑分測試
+            </button>
+        </div>
+
         <div class="card">
             <h2 class="green-header">⚡ 能耗與體驗數據採集面板</h2>
             <div class="metrics-grid">
@@ -204,7 +232,7 @@
                 <div class="metric-box"><div class="metric-label">體驗品質 (QoE 指數)</div><div class="metric-val" id="res-green-qoe" style="color:#facc15;">100 %</div></div>
             </div>
         </div>
-
+        
         <!-- 區塊 A 專屬歷史紀錄 -->
         <div class="card">
             <h2 class="green-header">📊 區塊 A 歷史紀錄 Log (綠色軟體工程)</h2>
@@ -504,6 +532,51 @@
         document.getElementById('res-green-watt').innerText = config.watt.toFixed(1) + " W";
         document.getElementById('res-green-carbon').innerText = mgCO2e.toFixed(4) + " mgCO2e";
         document.getElementById('res-green-qoe').innerText = qoeScore + " %";
+
+        function runPromptBenchmark() {
+            const promptType = document.getElementById('cfg-prompt-type').value;
+            const size = parseInt(document.getElementById('cfg-prompt-size').value) || 30000;
+            const testData = Array.from({length: size}, () => Math.floor(Math.random() * 1000));
+        
+            const start = performance.now();
+            let watt = 15.0; // 預估晶片功率 (W)
+        
+            // 模擬 4 種 AI 指令產出的演算法執行過程
+            if (promptType === 'Baseline') {
+                watt = 15.0; // 高 CPU 負載
+                testData.filter((item, index) => testData.indexOf(item) === index);
+            } else if (promptType === 'Speed') {
+                watt = 10.5; // 快取高記憶體
+                Array.from(new Set(testData));
+            } else if (promptType === 'RAM') {
+                watt = 8.0; // 原地排序，中負載
+                testData.slice().sort((a,b)=>a-b);
+            } else { // Green Prompt
+                watt = 3.5; // 低 CPU 循環 Hash Map 搜尋
+                const map = new Map();
+                for(let i=0; i<testData.length; i++) map.set(testData[i], true);
+            }
+        
+            const duration = performance.now() - start;
+            const energyKWh = (watt * (duration / 1000 / 3600)) / 1000;
+            const sci = energyKWh * 494000; // mgCO2e (電力排碳係數 0.494 kg/kWh)[cite: 3]
+        
+            // 更新面板數據並寫入歷史紀錄 A[cite: 3]
+            document.getElementById('res-green-time').innerText = duration.toFixed(2) + " ms";
+            document.getElementById('res-green-watt').innerText = watt.toFixed(1) + " W";
+            document.getElementById('res-green-carbon').innerText = sci.toFixed(4) + " mgCO2e";
+        
+            logsA.push({
+                id: logsA.length + 1,
+                mode: `Prompt: ${promptType}`,
+                size: size,
+                time: duration.toFixed(2) + " ms",
+                watt: watt.toFixed(1) + " W",
+                carbon: sci.toFixed(4),
+                qoe: promptType === 'Baseline' ? '45%' : '95%'
+            });
+            renderTableA();
+        }
 
         // 寫入區塊 A Log
         logsA.push({
