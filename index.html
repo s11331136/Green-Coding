@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>綠色軟體工程 Green-Coding</title>
+    <title>綠色軟體工程 (Green Coding) 與 AI 程式碼節能評測平台</title>
+    <!-- 引入 Chart.js 圖表庫 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg: #0f172a;
             --card: #1e293b;
             --text: #f8fafc;
             --primary: #10b981;
-            --accent: #00ffcc;
+            --accent-green: #00ffcc;
+            --accent-cyan: #38bdf8;
             --border: #334155;
             --purple: #a855f7;
             --purple-light: #c084fc;
-            --purple-dark: #581c87;
         }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -26,34 +28,26 @@
             flex-direction: column; 
             align-items: center;
         }
-        .container { max-width: 1000px; width: 100%; }
-        h1 { text-align: center; color: var(--accent); margin-bottom: 4px; letter-spacing: 1px; }
+        .container { max-width: 1050px; width: 100%; }
+        h1 { text-align: center; color: var(--accent-green); margin-bottom: 4px; letter-spacing: 1px; }
         .subtitle { text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 0.9em; }
         
+        /* 主頁籤切換 */
         .main-tab-group { display: flex; gap: 12px; margin-bottom: 20px; }
         .main-tab-btn {
-            flex: 1; padding: 14px; font-size: 17px; font-weight: bold;
+            flex: 1; padding: 14px; font-size: 16px; font-weight: bold;
             background: var(--card); border: 2px solid var(--border);
             color: #94a3b8; border-radius: 10px; cursor: pointer; transition: 0.3s;
             text-align: center;
         }
-        .main-tab-btn.active-green { 
-            background: #064e3b; color: #00ffcc; border-color: #00ffcc; 
+        .main-tab-btn.active-a { 
+            background: #064e3b; color: var(--accent-green); border-color: var(--accent-green); 
             box-shadow: 0 0 12px rgba(0,255,204,0.3); 
         }
-        .main-tab-btn.active-neon { 
-            background: var(--purple-dark); color: var(--purple-light); border-color: var(--purple); 
-            box-shadow: 0 0 12px rgba(168,85,247,0.4); 
+        .main-tab-btn.active-b { 
+            background: #0c4a6e; color: var(--accent-cyan); border-color: var(--accent-cyan); 
+            box-shadow: 0 0 12px rgba(56,189,248,0.3); 
         }
-
-        .sub-tab-group { display: flex; gap: 10px; margin-bottom: 16px; }
-        .sub-tab-btn {
-            flex: 1; padding: 10px; font-size: 14px; font-weight: bold;
-            background: #111827; border: 1px solid var(--border);
-            color: #94a3b8; border-radius: 6px; cursor: pointer; transition: 0.2s;
-        }
-        .sub-tab-btn.active-info { background: #0284c7; color: #fff; border-color: #38bdf8; }
-        .sub-tab-btn.active-biz { background: #7e22ce; color: var(--purple-light); border-color: var(--purple-light); }
 
         .card {
             background: var(--card); border: 1px solid var(--border);
@@ -62,8 +56,7 @@
         }
         .card h2 { margin-top: 0; font-size: 1.2em; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
         .green-header { color: var(--primary); }
-        .info-header { color: #38bdf8; }
-        .biz-header { color: var(--purple-light); }
+        .cyan-header { color: var(--accent-cyan); }
 
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 12px; }
         .form-group { display: flex; flex-direction: column; gap: 4px; font-size: 0.85em; }
@@ -78,12 +71,11 @@
         }
 
         .btn {
-            background: var(--accent); color: #000; border: none; padding: 12px 24px;
-            font-size: 15px; font-weight: bold; border-radius: 8px; cursor: pointer;
-            width: 100%; transition: all 0.2s;
+            border: none; padding: 12px 24px; font-size: 15px; font-weight: bold;
+            border-radius: 8px; cursor: pointer; width: 100%; transition: all 0.2s;
         }
-        .btn-biz { background: var(--purple-light); color: #000; }
-        .btn-biz:hover { background: #d8b4fe; }
+        .btn-green { background: var(--accent-green); color: #000; }
+        .btn-cyan { background: var(--accent-cyan); color: #000; }
         .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
         .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 12px; }
@@ -92,24 +84,18 @@
         .metric-val { font-size: 1.25em; font-weight: bold; margin-top: 4px; word-break: break-all; }
 
         .mode-settings-block { background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #1e293b; }
-        .mode-title { font-weight: bold; color: var(--accent); margin-bottom: 8px; font-size: 0.9em; }
+        .mode-title { font-weight: bold; margin-bottom: 8px; font-size: 0.9em; }
+
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 10px; }
+        .chart-box { background: #0f172a; border: 1px solid var(--border); padding: 12px; border-radius: 8px; }
 
         .log-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 10px; flex-wrap: wrap; gap: 10px;
         }
         .select-limit {
-            background: #0f172a;
-            color: #fff;
-            border: 1px solid var(--border);
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 0.85em;
-            cursor: pointer;
+            background: #0f172a; color: #fff; border: 1px solid var(--border);
+            padding: 6px 10px; border-radius: 6px; font-size: 0.85em; cursor: pointer;
         }
         table { width:100%; border-collapse:collapse; margin-top:8px; font-size:0.85em; text-align:left; }
         th, td { padding: 8px; border-bottom: 1px solid var(--border); }
@@ -119,798 +105,648 @@
 <body>
 
 <div class="container">
-    <h1>🌱 綠色軟體工程 (Green-Coding) 模擬平台</h1>
-    <div class="subtitle">針對 AI 程式碼能耗與動態降級進行硬體與 QoE 評估</div>
+    <h1>🌱 綠色軟體工程 (Green Coding) 雙軸評測平台</h1>
+    <div class="subtitle">比較「電量感知動態降級」與「AI Prompt 程式碼重構」之能耗與碳排放效益</div>
 
-    <!-- 頂層主頁籤 -->
+    <!-- 頂層分區頁籤 -->
     <div class="main-tab-group">
-        <button id="main-btn-green" class="main-tab-btn active-green" onclick="switchMainTab('green')">🌱 綠色軟體工程 (Eco-Mode & Prompt Benchmark)</button>
-        <button id="main-btn-neon" class="main-tab-btn" onclick="switchMainTab('neon')">🎮 Neon Survivor 專案模擬 (碰撞 & 商業 DDA)</button>
+        <button class="main-tab-btn active-a" id="main-btn-a" onclick="switchMainTab('a')">
+            🔋 區塊 A：【電量感知與動態 Eco-Mode】<br><span style="font-size:0.75em; font-weight:normal;">依裝置剩餘電量動態調包演算法降級能耗</span>
+        </button>
+        <button class="main-tab-btn" id="main-btn-b" onclick="switchMainTab('b')">
+            🤖 區塊 B：【AI Prompt 重構節能評測】<br><span style="font-size:0.75em; font-weight:normal;">不同 LLM 提示詞重構代碼之能耗與 SCI 對比</span>
+        </button>
     </div>
 
-    <!-- ================= 區塊 A：綠色軟體工程與 Prompt 基準測試 ================= -->
-    <div id="main-section-green">
-        
-        <!-- 卡片 1：動態降級系統 (Battery Eco-Mode) -->
+    <!-- ================================================================= -->
+    <!-- ==================== 區塊 A：電量感知 Eco-Mode ==================== -->
+    <!-- ================================================================= -->
+    <div id="section-a">
+        <!-- 1. 裝置模擬控制區 -->
         <div class="card">
-            <h2 class="green-header">🔋 模擬裝置電量與自適應降級 (Adaptive Eco-Mode)</h2>
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label>模擬裝置電量 (Battery Level): <strong id="mock-val" style="color:var(--accent);">100</strong>%</label>
-                <input type="range" id="mock-battery" min="1" max="100" value="100">
+            <h2 class="green-header">🔋 裝置電量與動態模式遙測 (Battery Telemetry)</h2>
+            <div style="margin-bottom: 12px;">
+                <label for="battery-slider">當前模擬電量：<span id="battery-val" style="font-weight:bold; color:var(--accent-green);">100</span>%</label>
+                <input type="range" id="battery-slider" min="1" max="100" value="100" style="width:100%; margin-top:8px;">
             </div>
-
-            <!-- 四種模式的參數微調表單 -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-                <div class="mode-settings-block">
-                    <div class="mode-title" style="color:#3b82f6;">⚡ 效能優先 (> 50%)</div>
-                    <div class="form-group"><label>模式名稱</label><input type="text" id="cfg-p-name" value="⚡ 效能優先 (全功率)"></div>
-                    <div class="form-group"><label>底層演算法</label><input type="text" id="cfg-p-algo" value="深層地圖渲染 + 大資料量深拷貝"></div>
-                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-p-watt" value="15.0" step="0.5"></div>
-                </div>
-
-                <div class="mode-settings-block">
-                    <div class="mode-title" style="color:#f59e0b;">⚖️ 平衡模式 (25% ~ 50%)</div>
-                    <div class="form-group"><label>模式名稱</label><input type="text" id="cfg-b-name" value="⚖️ 平衡模式"></div>
-                    <div class="form-group"><label>底層演算法</label><input type="text" id="cfg-b-algo" value="關閉陰影 + Map 快速搜尋"></div>
-                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-b-watt" value="8.5" step="0.5"></div>
-                </div>
-
-                <div class="mode-settings-block">
-                    <div class="mode-title" style="color:#10b981;">🍃 省電模式 (10% ~ 25%)</div>
-                    <div class="form-group"><label>模式名稱</label><input type="text" id="cfg-e-name" value="🍃 省電模式"></div>
-                    <div class="form-group"><label>底層演算法</label><input type="text" id="cfg-e-algo" value="空間 Hash 陣列 + 降採樣"></div>
-                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-e-watt" value="3.5" step="0.5"></div>
-                </div>
-
-                <div class="mode-settings-block">
-                    <div class="mode-title" style="color:#047857;">🚨 極度省電 (< 10%)</div>
-                    <div class="form-group"><label>模式名稱</label><input type="text" id="cfg-u-name" value="🚨 極度省電模式"></div>
-                    <div class="form-group"><label>底層演算法</label><input type="text" id="cfg-u-algo" value="凍結背景 + 僅核心陣列比對"></div>
-                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-u-watt" value="1.2" step="0.1"></div>
-                </div>
-            </div>
-
-            <div style="margin-top: 12px;">
-                <span style="font-size:0.9em; color:#94a3b8;">當前切換模式：</span>
-                <span id="mode-badge" class="status-badge">⚡ 效能優先 (全功率)</span>
+            <div>
+                當前自動觸發模式：<span id="badge-a" class="status-badge" style="background:#2563eb; color:#fff;">未初始化</span>
             </div>
         </div>
 
-        <!-- 卡片 2：演算法 Benchmark 與 AI Prompt 測試區 -->
+        <!-- 2. 配置與參數調整 -->
         <div class="card">
-            <h2 class="green-header">🧪 演算法與 AI Prompt 能耗基準測試</h2>
+            <h2 class="green-header">⚙️ 區塊 A：各電量區間演算法配置與參數調整</h2>
             
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>測試資料規模 (N 筆數)</label>
-                    <input type="number" id="cfg-data-size" value="100000">
-                </div>
-                <div class="form-group">
-                    <label>AI Prompt 重構策略對比</label>
-                    <select id="cfg-prompt-type">
-                        <option value="Baseline">無提示詞（原始 AI 產出 / 嵌套迴圈 O(N²)）</option>
-                        <option value="Speed">Prompt: 「追求極速執行速度」</option>
-                        <option value="RAM">Prompt: 「追求記憶體最省」</option>
-                        <option value="Green">Green Prompt: 「追求最高能效 (Green Coding)」</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Prompt 測試規模 (N)</label>
-                    <input type="number" id="cfg-prompt-size" value="30000">
+            <div class="mode-settings-block">
+                <div class="mode-title" style="color:#60a5fa;">1. 高效能模式（電量 > 50%）</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>顯示名稱</label><input type="text" id="cfg-a1-name" value="Performance 高效能模式"></div>
+                    <div class="form-group"><label>演算法標籤</label><input type="text" id="cfg-a1-algo" value="標準高負載 (O(N) 雙重處理)"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-a1-watt" value="15.0" step="0.1" onchange="updateChartsA()"></div>
                 </div>
             </div>
 
-            <div style="display:flex; gap:10px; margin-bottom: 15px;">
-                <button class="btn" onclick="runGreenBenchmark()">🚀 執行目前 Eco-Mode 測試</button>
-                <button class="btn" style="background:#38bdf8; color:#000;" onclick="runPromptBenchmark()">🤖 執行 AI Prompt 能耗重構測試</button>
+            <div class="mode-settings-block">
+                <div class="mode-title" style="color:#f59e0b;">2. 平衡模式（25% < 電量 ≤ 50%）</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>顯示名稱</label><input type="text" id="cfg-a2-name" value="Balanced 平衡模式"></div>
+                    <div class="form-group"><label>演算法標籤</label><input type="text" id="cfg-a2-algo" value="平衡調適 (O(N) 單次搜尋)"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-a2-watt" value="8.5" step="0.1" onchange="updateChartsA()"></div>
+                </div>
             </div>
 
-            <!-- 即時量測結果 -->
+            <div class="mode-settings-block">
+                <div class="mode-title" style="color:#10b981;">3. 標準省電模式（10% < 電量 ≤ 25%）</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>顯示名稱</label><input type="text" id="cfg-a3-name" value="Eco-Mode 標準省電"></div>
+                    <div class="form-group"><label>演算法標籤</label><input type="text" id="cfg-a3-algo" value="AI 綠色重構 (Hash Target)"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-a3-watt" value="3.5" step="0.1" onchange="updateChartsA()"></div>
+                </div>
+            </div>
+
+            <div class="mode-settings-block">
+                <div class="mode-title" style="color:#047857;">4. 極致省電模式（電量 ≤ 10%）</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>顯示名稱</label><input type="text" id="cfg-a4-name" value="Ultra Eco 極致省電"></div>
+                    <div class="form-group"><label>演算法標籤</label><input type="text" id="cfg-a4-algo" value="極限降級 (Direct Key Indexing)"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-a4-watt" value="1.2" step="0.1" onchange="updateChartsA()"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>測試資料運算筆數 (N)</label>
+                <input type="number" id="cfg-a-size" value="100000" step="10000">
+            </div>
+            <button class="btn btn-green" style="margin-top:12px;" onclick="runBenchmarkA()">⚡ 執行區塊 A 電量感應基準測試</button>
+        </div>
+
+        <!-- 3. 單次運算數據採集面板 -->
+        <div class="card">
+            <h2 class="green-header">⚡ 區塊 A：單次運算即時遙測面板</h2>
             <div class="metrics-grid">
-                <div class="metric-box">
-                    <div class="metric-label">執行總耗時 (Duration)</div>
-                    <div class="metric-val" id="res-green-time" style="color:var(--accent);">0.00 ms</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-label">當前演算法名稱</div>
-                    <div class="metric-val" id="res-green-algo" style="font-size:0.95em; color:#cbd5e1;">-</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-label">晶片預估功率 (Watt)</div>
-                    <div class="metric-val" id="res-green-watt" style="color:#f59e0b;">0.0 W</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-label">估算碳排放量 (SCI)</div>
-                    <div class="metric-val" id="res-green-carbon" style="color:#818cf8;">0.0000 mgCO2e</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-label">使用者體驗 (QoE)</div>
-                    <div class="metric-val" id="res-green-qoe" style="color:#facc15;">0 %</div>
-                </div>
+                <div class="metric-box"><div class="metric-label">運算耗時</div><div class="metric-val" id="res-a-time" style="color:var(--accent-green);">0 ms</div></div>
+                <div class="metric-box"><div class="metric-label">當前演算法</div><div class="metric-val" id="res-a-algo" style="font-size:0.8em;">無</div></div>
+                <div class="metric-box"><div class="metric-label">推估功耗</div><div class="metric-val" id="res-a-watt">0 W</div></div>
+                <div class="metric-box"><div class="metric-label">預估碳排放 (SCI)</div><div class="metric-val" id="res-a-carbon" style="color:#818cf8;">0 mgCO2e</div></div>
+                <div class="metric-box"><div class="metric-label">使用者體驗 (QoE)</div><div class="metric-val" id="res-a-qoe" style="color:#facc15;">100 %</div></div>
             </div>
         </div>
 
-        <!-- 卡片 3：動態 Canvas 可視化圖表 -->
+        <!-- 4. 模式視覺化圖表 -->
         <div class="card">
-            <div style="display:flex; justify-space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
-                <h2 class="green-header" style="margin:0; border:none; padding:0;">📊 綠色軟體視覺化分析圖表</h2>
-                <div class="sub-tab-group" style="margin:0;">
-                    <button id="btn-chart-step" class="sub-tab-btn active-info" onclick="switchChartMode('step')">📉 電量降級階梯曲線</button>
-                    <button id="btn-chart-scale" class="sub-tab-btn" onclick="switchChartMode('scale')">📈 資料規模 (N) 耗時折線圖</button>
-                </div>
-            </div>
-            <div id="chart-legend" style="font-size:0.8em; color:#94a3b8; margin-bottom:8px;">
-                橫軸：模擬裝置電量 (100% ➔ 0%) | 縱軸：系統預估功耗 (W)
-            </div>
-            <div style="position:relative; width:100%; height:260px; background:#0f172a; border-radius:8px; border:1px solid var(--border);">
-                <canvas id="energyCanvas" style="width:100%; height:100%; display:block;"></canvas>
+            <h2 class="green-header">📈 區塊 A：模式功耗與階梯降級視覺化圖表</h2>
+            <div class="chart-grid">
+                <div class="chart-box"><canvas id="chart-a-bar"></canvas></div>
+                <div class="chart-box"><canvas id="chart-a-curve"></canvas></div>
             </div>
         </div>
 
-        <!-- 卡片 4：區塊 A 歷史紀錄 telemetry -->
+        <!-- 5. 數據統計摘要與歷程趨勢圖 -->
         <div class="card">
+            <h2 class="green-header">📉 區塊 A：歷史模擬數據統計與歷程趨勢圖</h2>
+            <div class="metrics-grid" style="margin-bottom: 16px;">
+                <div class="metric-box"><div class="metric-label">總模擬次數</div><div class="metric-val" id="stat-a-runs" style="color:#38bdf8;">0 次</div></div>
+                <div class="metric-box"><div class="metric-label">平均運算耗時</div><div class="metric-val" id="stat-a-avgtime" style="color:var(--accent-green);">0 ms</div></div>
+                <div class="metric-box"><div class="metric-label">平均推估功耗</div><div class="metric-val" id="stat-a-avgwatt" style="color:#facc15;">0 W</div></div>
+                <div class="metric-box"><div class="metric-label">總累計碳排放</div><div class="metric-val" id="stat-a-totalcarbon" style="color:#818cf8;">0 mgCO2e</div></div>
+            </div>
+            <div class="chart-box">
+                <canvas id="chart-a-trend" style="max-height: 320px;"></canvas>
+            </div>
+        </div>
+
+        <!-- 6. 歷史紀錄 Log & CSV -->
+        <div class="card">
+            <h2 class="green-header">📊 區塊 A：歷史紀錄 Log 與數據導出</h2>
             <div class="log-toolbar">
-                <h2 class="green-header" style="margin:0; border:none; padding:0;">📜 區塊 A 遙測數據紀錄 (Telemetry Logs)</h2>
                 <div>
-                    <label style="font-size:0.85em; color:#94a3b8;">顯示筆數：</label>
-                    <select id="limit-green" class="select-limit" onchange="renderTableA()">
-                        <option value="5">最新 5 筆</option>
-                        <option value="10" selected>最新 10 筆</option>
-                        <option value="20">最新 20 筆</option>
-                        <option value="9999">全部顯示</option>
+                    <label style="font-size:0.85em; color:#cbd5e1;">顯示筆數：</label>
+                    <select id="limit-a" class="select-limit" onchange="renderTableA()">
+                        <option value="10" selected>10 筆</option>
+                        <option value="20">20 筆</option>
+                        <option value="50">50 筆</option>
                     </select>
-                    <button onclick="exportCSVA()" style="background:#10b981; color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-left:8px;">📥 匯出 CSV</button>
                 </div>
+                <button onclick="exportCSVA()" style="background:#059669; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85em;">📥 匯出區塊 A CSV</button>
             </div>
             <div style="overflow-x:auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>測試模式 / Prompt</th>
-                            <th>資料規模 (N)</th>
-                            <th>執行耗時</th>
-                            <th>晶片功率</th>
-                            <th>估算碳排 (mgCO2e)</th>
-                            <th>QoE 滿意度</th>
+                            <th>觸發模式/名稱</th>
+                            <th>資料量 (N)</th>
+                            <th>耗時</th>
+                            <th>功耗 (W)</th>
+                            <th>碳排放 (mgCO2e)</th>
+                            <th>QoE (%)</th>
                         </tr>
                     </thead>
                     <tbody id="log-body-a">
-                        <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無測試數據，請點擊上方按鈕執行測試</td></tr>
+                        <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無區塊 A 模擬數據</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
 
-    <!-- ================= 區塊 B：Neon Survivor 專案模擬 ================= -->
-    <div id="main-section-neon" style="display:none;">
-        <div class="sub-tab-group">
-            <button id="sub-btn-info" class="sub-tab-btn active-info" onclick="switchNeonSubTab('info')">🎮 B-1: 空間 Hash 碰撞能耗對比</button>
-            <button id="sub-btn-biz" class="sub-tab-btn" onclick="switchNeonSubTab('biz')">💼 B-2: 商業 DDA 動態難度與留存</button>
-        </div>
 
-        <!-- 子區塊 B-1 -->
-        <div id="neon-sub-info">
-            <div class="card">
-                <h2 class="info-header">🎮 彈幕碰撞檢測 - 演算法能耗測試</h2>
-                <div class="form-grid">
-                    <div class="form-group"><label>玩家投射物 (N)</label><input type="number" id="cfg-proj-n" value="1000"></div>
-                    <div class="form-group"><label>敵方單位 (M)</label><input type="number" id="cfg-enemy-m" value="3000"></div>
-                    <div class="form-group">
-                        <label>演算架構策略</label>
-                        <select id="cfg-algo-type">
-                            <option value="brute">雙重迴圈暴搜 O(N×M)</option>
-                            <option value="spatial">空間 Hash 網格 O(N+M)</option>
-                        </select>
-                    </div>
-                </div>
-                <button class="btn" style="background:#38bdf8;" onclick="runCollisionSim()">⚡ 執行碰撞模擬測試</button>
-
-                <div class="metrics-grid">
-                    <div class="metric-box"><div class="metric-label">運算耗時</div><div class="metric-val" id="res-col-time" style="color:#38bdf8;">0.00 ms</div></div>
-                    <div class="metric-box"><div class="metric-label">有效碰撞觸發</div><div class="metric-val" id="res-col-hits" style="color:#cbd5e1;">0</div></div>
-                    <div class="metric-box"><div class="metric-label">當前功耗</div><div class="metric-val" id="res-col-watt" style="color:#f59e0b;">0.0 W</div></div>
-                    <div class="metric-box"><div class="metric-label">單次估碳</div><div class="metric-val" id="res-col-sci" style="color:#818cf8;">0.0000 mgCO2e</div></div>
-                    <div class="metric-box"><div class="metric-label">流暢度 QoE</div><div class="metric-val" id="res-col-qoe" style="color:#facc15;">0 %</div></div>
-                </div>
+    <!-- ================================================================= -->
+    <!-- ==================== 區塊 B：AI Prompt 重構節能 ==================== -->
+    <!-- ================================================================= -->
+    <div id="section-b" style="display:none;">
+        <!-- 1. AI 提示詞控制區 -->
+        <div class="card">
+            <h2 class="cyan-header">🤖 AI Prompt 測試變因選擇 (Prompt Matrix)</h2>
+            <div style="margin-bottom: 12px;">
+                <label for="prompt-select">當前選擇測試的 Prompt 指令變因：</label>
+                <select id="prompt-select" style="width:100%; padding:10px; background:#0f172a; border:1px solid var(--border); color:#fff; border-radius:6px; margin-top:6px;" onchange="updatePromptBadge()">
+                    <option value="1">指令 1 (Baseline)：未優化原始代碼 O(N²)</option>
+                    <option value="2">指令 2 (Speed Prompt)：「執行速度最快為目標」</option>
+                    <option value="3">指令 3 (Memory Prompt)：「記憶體佔用最少為目標」</option>
+                    <option value="4" selected>指令 4 (Green Prompt)：「CPU 功率與綠色節能為目標」</option>
+                </select>
             </div>
-
-            <div class="card">
-                <div class="log-toolbar">
-                    <h2 class="info-header" style="margin:0; border:none; padding:0;">📜 B-1 碰撞能耗遙測紀錄</h2>
-                    <div>
-                        <select id="limit-neon-info" class="select-limit" onchange="renderTableB_Info()">
-                            <option value="5">最新 5 筆</option>
-                            <option value="10" selected>最新 10 筆</option>
-                            <option value="20">最新 20 筆</option>
-                        </select>
-                        <button onclick="exportCSVB_Info()" style="background:#38bdf8; color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-left:8px;">📥 匯出 CSV</button>
-                    </div>
-                </div>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr><th>#</th><th>演算法架構</th><th>規模 (N×M)</th><th>運算耗時</th><th>碰撞數</th><th>晶片功耗</th><th>QoE</th></tr>
-                        </thead>
-                        <tbody id="log-body-b-info">
-                            <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無模擬數據</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div>
+                當前選定指令：<span id="badge-b" class="status-badge" style="background:#0284c7; color:#fff;">Green Prompt</span>
             </div>
         </div>
 
-        <!-- 子區塊 B-2 -->
-        <div id="neon-sub-biz" style="display:none;">
-            <div class="card">
-                <h2 class="biz-header">💼 商業模型 - 動態難度 (DDA) 與玩家留存</h2>
+        <!-- 2. 配置與參數調整 -->
+        <div class="card">
+            <h2 class="cyan-header">⚙️ 區塊 B：各 Prompt 代碼策略配置與參數調整</h2>
+            
+            <div class="mode-settings-block">
+                <div class="mode-title" style="color:#ef4444;">1. 指令 1 (Baseline 未優化)</div>
                 <div class="form-grid">
-                    <div class="form-group"><label>刷怪強度 (%)</label><input type="number" id="cfg-biz-intensity" value="120"></div>
-                    <div class="form-group"><label>Combo 連擊係數</label><input type="number" id="cfg-biz-combo" value="45"></div>
-                    <div class="form-group">
-                        <label>插播廣告動態機制</label>
-                        <select id="cfg-biz-ad">
-                            <option value="enabled">開啟 (高負載觸發)</option>
-                            <option value="disabled">關閉</option>
-                        </select>
-                    </div>
-                </div>
-                <button class="btn btn-biz" onclick="runBizSim()">📈 計算商業與留存指標</button>
-
-                <div class="metrics-grid">
-                    <div class="metric-box"><div class="metric-label">心流指數 (Flow)</div><div class="metric-val" id="res-biz-flow" style="color:var(--purple-light);">0 / 100</div></div>
-                    <div class="metric-box"><div class="metric-label">單局停留時間</div><div class="metric-val" id="res-biz-session" style="color:#cbd5e1;">0 s</div></div>
-                    <div class="metric-box"><div class="metric-label">廣告變現轉化率</div><div class="metric-val" id="res-biz-adrate" style="color:#facc15;">0 %</div></div>
-                    <div class="metric-box"><div class="metric-label">次日預估留存率</div><div class="metric-val" id="res-biz-retention" style="color:#4ade80;">0 %</div></div>
+                    <div class="form-group"><label>提示詞名稱</label><input type="text" id="cfg-b1-name" value="Baseline 原始代碼"></div>
+                    <div class="form-group"><label>重構演算法</label><input type="text" id="cfg-b1-algo" value="雙重迴圈比對 (O(N²))"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-b1-watt" value="16.5" step="0.1" onchange="updateChartsB()"></div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="log-toolbar">
-                    <h2 class="biz-header" style="margin:0; border:none; padding:0;">📜 B-2 商業與留存遙測紀錄</h2>
-                    <div>
-                        <select id="limit-neon-biz" class="select-limit" onchange="renderTableB_Biz()">
-                            <option value="5">最新 5 筆</option>
-                            <option value="10" selected>最新 10 筆</option>
-                            <option value="20">最新 20 筆</option>
-                        </select>
-                        <button onclick="exportCSVB_Biz()" style="background:var(--purple-light); color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-left:8px;">📥 匯出 CSV</button>
-                    </div>
+            <div class="mode-settings-block">
+                <div class="mode-title" style="color:#38bdf8;">2. 指令 2 (Speed Prompt 速度導向)</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>提示詞名稱</label><input type="text" id="cfg-b2-name" value="Speed 優化速度"></div>
+                    <div class="form-group"><label>重構演算法</label><input type="text" id="cfg-b2-algo" value="ES6 Set 快取 (O(N))"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-b2-watt" value="10.5" step="0.1" onchange="updateChartsB()"></div>
                 </div>
-                <div style="overflow-x:auto;">
-                    <table>
-                        <thead>
-                            <tr><th>#</th><th>強度 (%)</th><th>Combo</th><th>停留時間</th><th>心流指數</th><th>廣告轉化</th><th>留存率</th></tr>
-                        </thead>
-                        <tbody id="log-body-b-biz">
-                            <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無模擬數據</td></tr>
-                        </tbody>
-                    </table>
+            </div>
+
+            <div class="mode-settings-block">
+                <div class="mode-title" style="color:#a855f7;">3. 指令 3 (Memory Prompt 記憶體導向)</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>提示詞名稱</label><input type="text" id="cfg-b3-name" value="Memory 優化記憶體"></div>
+                    <div class="form-group"><label>重構演算法</label><input type="text" id="cfg-b3-algo" value="In-Place 原地指標搜尋"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-b3-watt" value="7.8" step="0.1" onchange="updateChartsB()"></div>
                 </div>
+            </div>
+
+            <div class="mode-settings-block">
+                <div class="mode-title" style="color:#00ffcc;">4. 指令 4 (Green Prompt 節能導向)</div>
+                <div class="form-grid">
+                    <div class="form-group"><label>提示詞名稱</label><input type="text" id="cfg-b4-name" value="Green 節能重構"></div>
+                    <div class="form-group"><label>重構演算法</label><input type="text" id="cfg-b4-algo" value="Hash Map 惰性比對 (O(1))"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-b4-watt" value="3.2" step="0.1" onchange="updateChartsB()"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>測試 Prompt 陣列筆數 (N)</label>
+                <input type="number" id="cfg-b-size" value="30000" step="5000">
+            </div>
+            <button class="btn btn-cyan" style="margin-top:12px;" onclick="runBenchmarkB()">🚀 執行區塊 B AI Prompt 重構測試</button>
+        </div>
+
+        <!-- 3. 單次運算數據採集面板 -->
+        <div class="card">
+            <h2 class="cyan-header">⚡ 區塊 B：單次運算即時遙測面板</h2>
+            <div class="metrics-grid">
+                <div class="metric-box"><div class="metric-label">運算耗時</div><div class="metric-val" id="res-b-time" style="color:var(--accent-cyan);">0 ms</div></div>
+                <div class="metric-box"><div class="metric-label">重構演算法</div><div class="metric-val" id="res-b-algo" style="font-size:0.8em;">無</div></div>
+                <div class="metric-box"><div class="metric-label">推估功耗</div><div class="metric-val" id="res-b-watt">0 W</div></div>
+                <div class="metric-box"><div class="metric-label">預估碳排放 (SCI)</div><div class="metric-val" id="res-b-carbon" style="color:#818cf8;">0 mgCO2e</div></div>
+                <div class="metric-box"><div class="metric-label">代碼品質與滿意度</div><div class="metric-val" id="res-b-qoe" style="color:#facc15;">100 %</div></div>
+            </div>
+        </div>
+
+        <!-- 4. 模式視覺化圖表 -->
+        <div class="card">
+            <h2 class="cyan-header">📈 區塊 B：AI Prompt 重構策略功耗對比與能耗曲線</h2>
+            <div class="chart-grid">
+                <div class="chart-box"><canvas id="chart-b-bar"></canvas></div>
+                <div class="chart-box"><canvas id="chart-b-curve"></canvas></div>
+            </div>
+        </div>
+
+        <!-- 5. 數據統計摘要與歷程趨勢圖 -->
+        <div class="card">
+            <h2 class="cyan-header">📉 區塊 B：歷史模擬數據統計與歷程趨勢圖</h2>
+            <div class="metrics-grid" style="margin-bottom: 16px;">
+                <div class="metric-box"><div class="metric-label">總模擬次數</div><div class="metric-val" id="stat-b-runs" style="color:#38bdf8;">0 次</div></div>
+                <div class="metric-box"><div class="metric-label">平均運算耗時</div><div class="metric-val" id="stat-b-avgtime" style="color:var(--accent-cyan);">0 ms</div></div>
+                <div class="metric-box"><div class="metric-label">平均推估功耗</div><div class="metric-val" id="stat-b-avgwatt" style="color:#facc15;">0 W</div></div>
+                <div class="metric-box"><div class="metric-label">總累計碳排放</div><div class="metric-val" id="stat-b-totalcarbon" style="color:#818cf8;">0 mgCO2e</div></div>
+            </div>
+            <div class="chart-box">
+                <canvas id="chart-b-trend" style="max-height: 320px;"></canvas>
+            </div>
+        </div>
+
+        <!-- 6. 歷史紀錄 Log & CSV -->
+        <div class="card">
+            <h2 class="cyan-header">📊 區塊 B：歷史紀錄 Log 與數據導出</h2>
+            <div class="log-toolbar">
+                <div>
+                    <label style="font-size:0.85em; color:#cbd5e1;">顯示筆數：</label>
+                    <select id="limit-b" class="select-limit" onchange="renderTableB()">
+                        <option value="10" selected>10 筆</option>
+                        <option value="20">20 筆</option>
+                        <option value="50">50 筆</option>
+                    </select>
+                </div>
+                <button onclick="exportCSVB()" style="background:#0284c7; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85em;">📥 匯出區塊 B CSV</button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Prompt 策略名稱</th>
+                            <th>資料量 (N)</th>
+                            <th>耗時</th>
+                            <th>功耗 (W)</th>
+                            <th>碳排放 (mgCO2e)</th>
+                            <th>品質評分 (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-body-b">
+                        <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無區塊 B 模擬數據</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+
 </div>
 
 <script>
-    // --- 全局變數宣告（放在最上方避免 Temporal Dead Zone 錯誤） ---
-    let logsA = [];         // 區塊 A 紀錄
-    let logsB_Info = [];    // 區塊 B-1 (資訊類)
-    let logsB_Biz = [];     // 區塊 B-2 (商業類)
+    // 數據紀錄與變數
+    let logsA = [];
+    let logsB = [];
     let currentBattery = 1.0;
-    let currentChartMode = 'step'; // 'step' 或 'scale'
-    let scaleDataPoints = [];      // 儲存不同 N 筆數測試結果
 
-    // --- 頂層頁籤切換 ---
-    function switchMainTab(type) {
-        const isGreen = type === 'green';
-        document.getElementById('main-section-green').style.display = isGreen ? 'block' : 'none';
-        document.getElementById('main-section-neon').style.display = isGreen ? 'none' : 'block';
-        
-        document.getElementById('main-btn-green').className = 'main-tab-btn ' + (isGreen ? 'active-green' : '');
-        document.getElementById('main-btn-neon').className = 'main-tab-btn ' + (!isGreen ? 'active-neon' : '');
+    // Chart.js 實例
+    let chartABar = null, chartACurve = null, chartATrend = null;
+    let chartBBar = null, chartBCurve = null, chartBTrend = null;
+
+    // 切換主頁籤
+    function switchMainTab(tab) {
+        const isA = tab === 'a';
+        document.getElementById('section-a').style.display = isA ? 'block' : 'none';
+        document.getElementById('section-b').style.display = isA ? 'none' : 'block';
+
+        document.getElementById('main-btn-a').className = 'main-tab-btn ' + (isA ? 'active-a' : '');
+        document.getElementById('main-btn-b').className = 'main-tab-btn ' + (!isA ? 'active-b' : '');
     }
 
-    // --- Neon Survivor (區塊 B) 內部子頁籤切換 ---
-    function switchNeonSubTab(subType) {
-        const isInfo = subType === 'info';
-        document.getElementById('neon-sub-info').style.display = isInfo ? 'block' : 'none';
-        document.getElementById('neon-sub-biz').style.display = isInfo ? 'none' : 'block';
+    // 區塊 A：電量滑桿事件
+    document.getElementById('battery-slider').addEventListener('input', (e) => {
+        currentBattery = e.target.value / 100;
+        document.getElementById('battery-val').innerText = e.target.value;
+        updateCurrentModeA();
+    });
 
-        document.getElementById('sub-btn-info').className = 'sub-tab-btn ' + (isInfo ? 'active-info' : '');
-        document.getElementById('sub-btn-biz').className = 'sub-tab-btn ' + (!isInfo ? 'active-biz' : '');
-    }
-
-    // --- 區塊 A：綠色軟體工程 (Eco-Mode) 邏輯 ---
-    function setupBatterySlider() {
-        const batterySlider = document.getElementById('mock-battery');
-        if (batterySlider) {
-            batterySlider.addEventListener('input', (e) => {
-                currentBattery = e.target.value / 100;
-                document.getElementById('mock-val').innerText = e.target.value;
-                updateCurrentMode();
-                renderChart();
-            });
-        }
-    }
-
-    function getActiveConfig() {
+    function getActiveConfigA() {
         if (currentBattery > 0.50) {
             return {
-                key: "PERFORMANCE",
-                name: document.getElementById('cfg-p-name').value,
-                algo: document.getElementById('cfg-p-algo').value,
-                watt: parseFloat(document.getElementById('cfg-p-watt').value) || 15.0,
-                badgeColor: "#2563eb",
-                qoeBase: 100
+                key: "P",
+                name: document.getElementById('cfg-a1-name').value,
+                algo: document.getElementById('cfg-a1-algo').value,
+                watt: parseFloat(document.getElementById('cfg-a1-watt').value) || 15.0,
+                color: "#2563eb", qoe: 100
             };
         } else if (currentBattery > 0.25) {
             return {
-                key: "BALANCED",
-                name: document.getElementById('cfg-b-name').value,
-                algo: document.getElementById('cfg-b-algo').value,
-                watt: parseFloat(document.getElementById('cfg-b-watt').value) || 8.5,
-                badgeColor: "#d97706",
-                qoeBase: 88
+                key: "B",
+                name: document.getElementById('cfg-a2-name').value,
+                algo: document.getElementById('cfg-a2-algo').value,
+                watt: parseFloat(document.getElementById('cfg-a2-watt').value) || 8.5,
+                color: "#d97706", qoe: 88
             };
         } else if (currentBattery > 0.10) {
             return {
-                key: "ECO",
-                name: document.getElementById('cfg-e-name').value,
-                algo: document.getElementById('cfg-e-algo').value,
-                watt: parseFloat(document.getElementById('cfg-e-watt').value) || 3.5,
-                badgeColor: "#059669",
-                qoeBase: 72
+                key: "E",
+                name: document.getElementById('cfg-a3-name').value,
+                algo: document.getElementById('cfg-a3-algo').value,
+                watt: parseFloat(document.getElementById('cfg-a3-watt').value) || 3.5,
+                color: "#059669", qoe: 72
             };
         } else {
             return {
-                key: "ULTRA_ECO",
-                name: document.getElementById('cfg-u-name').value,
-                algo: document.getElementById('cfg-u-algo').value,
-                watt: parseFloat(document.getElementById('cfg-u-watt').value) || 1.2,
-                badgeColor: "#047857",
-                qoeBase: 55
+                key: "U",
+                name: document.getElementById('cfg-a4-name').value,
+                algo: document.getElementById('cfg-a4-algo').value,
+                watt: parseFloat(document.getElementById('cfg-a4-watt').value) || 1.2,
+                color: "#047857", qoe: 55
             };
         }
     }
 
-    function updateCurrentMode() {
-        const config = getActiveConfig();
-        const badge = document.getElementById('mode-badge');
-        if (badge) {
-            badge.innerText = config.name;
-            badge.style.backgroundColor = config.badgeColor;
-        }
+    function updateCurrentModeA() {
+        const cfg = getActiveConfigA();
+        const badge = document.getElementById('badge-a');
+        badge.innerText = cfg.name;
+        badge.style.backgroundColor = cfg.color;
     }
 
-    function runGreenBenchmark() {
-        const config = getActiveConfig();
-        const dataSize = parseInt(document.getElementById('cfg-data-size').value) || 100000;
-        
-        const mockData = Array.from({length: dataSize}, (_, i) => ({ id: i, text: "entity_" + i }));
-        const targetStr = "entity_" + (dataSize - 1);
+    // 區塊 B：Prompt 切換
+    function updatePromptBadge() {
+        const val = document.getElementById('prompt-select').value;
+        const badge = document.getElementById('badge-b');
+        if (val === "1") { badge.innerText = "Baseline"; badge.style.backgroundColor = "#ef4444"; }
+        else if (val === "2") { badge.innerText = "Speed Prompt"; badge.style.backgroundColor = "#38bdf8"; }
+        else if (val === "3") { badge.innerText = "Memory Prompt"; badge.style.backgroundColor = "#a855f7"; }
+        else { badge.innerText = "Green Prompt"; badge.style.backgroundColor = "#00ffcc"; badge.style.color = "#000"; }
+    }
 
-        const startTime = performance.now();
-
-        if (config.key === "PERFORMANCE") {
-            let res = [];
-            for (let i = 0; i < mockData.length; i++) {
-                let temp = mockData[i].text.toUpperCase().toLowerCase();
-                if (temp.includes(targetStr)) res.push(mockData[i]);
-            }
-        } else if (config.key === "BALANCED") {
-            let res = mockData.find(item => item.text.indexOf(targetStr) !== -1);
-        } else if (config.key === "ECO") {
-            let res = mockData.find(item => item.text === targetStr);
+    function getActiveConfigB() {
+        const val = document.getElementById('prompt-select').value;
+        if (val === "1") {
+            return {
+                name: document.getElementById('cfg-b1-name').value,
+                algo: document.getElementById('cfg-b1-algo').value,
+                watt: parseFloat(document.getElementById('cfg-b1-watt').value) || 16.5,
+                qoe: 50, type: 1
+            };
+        } else if (val === "2") {
+            return {
+                name: document.getElementById('cfg-b2-name').value,
+                algo: document.getElementById('cfg-b2-algo').value,
+                watt: parseFloat(document.getElementById('cfg-b2-watt').value) || 10.5,
+                qoe: 92, type: 2
+            };
+        } else if (val === "3") {
+            return {
+                name: document.getElementById('cfg-b3-name').value,
+                algo: document.getElementById('cfg-b3-algo').value,
+                watt: parseFloat(document.getElementById('cfg-b3-watt').value) || 7.8,
+                qoe: 85, type: 3
+            };
         } else {
-            let res = mockData[dataSize - 1];
+            return {
+                name: document.getElementById('cfg-b4-name').value,
+                algo: document.getElementById('cfg-b4-algo').value,
+                watt: parseFloat(document.getElementById('cfg-b4-watt').value) || 3.2,
+                qoe: 98, type: 4
+            };
         }
-
-        const durationMs = performance.now() - startTime;
-        const timeInHours = (durationMs / 1000) / 3600;
-        const energyKWh = (config.watt * timeInHours) / 1000;
-        const mgCO2e = energyKWh * 494000;
-        
-        const latencyPenalty = Math.min(20, durationMs / 10);
-        const qoeScore = Math.max(10, Math.round(config.qoeBase - latencyPenalty));
-
-        document.getElementById('res-green-time').innerText = durationMs.toFixed(2) + " ms";
-        document.getElementById('res-green-algo').innerText = config.algo;
-        document.getElementById('res-green-watt').innerText = config.watt.toFixed(1) + " W";
-        document.getElementById('res-green-carbon').innerText = mgCO2e.toFixed(4) + " mgCO2e";
-        document.getElementById('res-green-qoe').innerText = qoeScore + " %";
-
-        // 寫入區塊 A Log
-        logsA.push({
-            id: logsA.length + 1,
-            mode: config.name,
-            size: dataSize,
-            time: durationMs.toFixed(2) + " ms",
-            watt: config.watt.toFixed(1) + " W",
-            carbon: mgCO2e.toFixed(4),
-            qoe: qoeScore + "%"
-        });
-        renderTableA();
-
-        scaleDataPoints.push({ size: dataSize, time: durationMs });
-        scaleDataPoints.sort((a, b) => a.size - b.size);
-        renderChart();
     }
 
-    function runPromptBenchmark() {
-        const promptType = document.getElementById('cfg-prompt-type').value;
-        const size = parseInt(document.getElementById('cfg-prompt-size').value) || 30000;
-        const testData = Array.from({length: size}, () => Math.floor(Math.random() * 1000));
-    
+    // 初始化 Chart.js
+    function initCharts() {
+        // --- 區塊 A 圖表 ---
+        const ctxA1 = document.getElementById('chart-a-bar').getContext('2d');
+        chartABar = new Chart(ctxA1, {
+            type: 'bar',
+            data: {
+                labels: ['高效能', '平衡模式', '標準省電', '極致省電'],
+                datasets: [{ label: '功耗 (W)', data: [15, 8.5, 3.5, 1.2], backgroundColor: ['#2563eb', '#d97706', '#059669', '#047857'], borderRadius: 6 }]
+            },
+            options: { responsive: true, plugins: { title: { display: true, text: '區塊 A 各模式預估功耗 (W)', color: '#fff' } } }
+        });
+
+        const ctxA2 = document.getElementById('chart-a-curve').getContext('2d');
+        chartACurve = new Chart(ctxA2, {
+            type: 'line',
+            data: {
+                labels: ['100%', '80%', '51%', '50%', '26%', '25%', '11%', '10%', '5%'],
+                datasets: [{ label: '即時功率 (W)', data: [15, 15, 15, 8.5, 8.5, 3.5, 3.5, 1.2, 1.2], borderColor: '#00ffcc', stepped: true }]
+            },
+            options: { responsive: true, plugins: { title: { display: true, text: '區塊 A 自適應電量降級曲線', color: '#fff' } } }
+        });
+
+        const ctxATrend = document.getElementById('chart-a-trend').getContext('2d');
+        chartATrend = new Chart(ctxATrend, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: '耗時 (ms)', data: [], borderColor: '#00ffcc' }, { label: '功耗 (W)', data: [], borderColor: '#facc15' }] },
+            options: { responsive: true, plugins: { title: { display: true, text: '區塊 A 歷史模擬數據趨勢', color: '#fff' } } }
+        });
+
+        // --- 區塊 B 圖表 ---
+        const ctxB1 = document.getElementById('chart-b-bar').getContext('2d');
+        chartBBar = new Chart(ctxB1, {
+            type: 'bar',
+            data: {
+                labels: ['Baseline', 'Speed Prompt', 'Memory Prompt', 'Green Prompt'],
+                datasets: [{ label: '功耗 (W)', data: [16.5, 10.5, 7.8, 3.2], backgroundColor: ['#ef4444', '#38bdf8', '#a855f7', '#00ffcc'], borderRadius: 6 }]
+            },
+            options: { responsive: true, plugins: { title: { display: true, text: '區塊 B AI Prompt 重構功耗對比 (W)', color: '#fff' } } }
+        });
+
+        const ctxB2 = document.getElementById('chart-b-curve').getContext('2d');
+        chartBCurve = new Chart(ctxB2, {
+            type: 'line',
+            data: {
+                labels: ['Baseline', 'Speed', 'Memory', 'Green'],
+                datasets: [{ label: '相對能耗強度 (%)', data: [100, 63, 47, 19], borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.2)', fill: true }]
+            },
+            options: { responsive: true, plugins: { title: { display: true, text: '區塊 B Prompt 重構能耗下降曲線 (%)', color: '#fff' } } }
+        });
+
+        const ctxBTrend = document.getElementById('chart-b-trend').getContext('2d');
+        chartBTrend = new Chart(ctxBTrend, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: '耗時 (ms)', data: [], borderColor: '#38bdf8' }, { label: '功耗 (W)', data: [], borderColor: '#facc15' }] },
+            options: { responsive: true, plugins: { title: { display: true, text: '區塊 B 歷史模擬數據趨勢', color: '#fff' } } }
+        });
+    }
+
+    function updateChartsA() {
+        const w1 = parseFloat(document.getElementById('cfg-a1-watt').value) || 15.0;
+        const w2 = parseFloat(document.getElementById('cfg-a2-watt').value) || 8.5;
+        const w3 = parseFloat(document.getElementById('cfg-a3-watt').value) || 3.5;
+        const w4 = parseFloat(document.getElementById('cfg-a4-watt').value) || 1.2;
+
+        chartABar.data.datasets[0].data = [w1, w2, w3, w4];
+        chartABar.update();
+
+        chartACurve.data.datasets[0].data = [w1, w1, w1, w2, w2, w3, w3, w4, w4];
+        chartACurve.update();
+    }
+
+    function updateChartsB() {
+        const w1 = parseFloat(document.getElementById('cfg-b1-watt').value) || 16.5;
+        const w2 = parseFloat(document.getElementById('cfg-b2-watt').value) || 10.5;
+        const w3 = parseFloat(document.getElementById('cfg-b3-watt').value) || 7.8;
+        const w4 = parseFloat(document.getElementById('cfg-b4-watt').value) || 3.2;
+
+        chartBBar.data.datasets[0].data = [w1, w2, w3, w4];
+        chartBBar.update();
+
+        const p2 = Math.round((w2/w1)*100);
+        const p3 = Math.round((w3/w1)*100);
+        const p4 = Math.round((w4/w1)*100);
+        chartBCurve.data.datasets[0].data = [100, p2, p3, p4];
+        chartBCurve.update();
+    }
+
+    // 執行區塊 A Benchmark
+    function runBenchmarkA() {
+        const cfg = getActiveConfigA();
+        const size = parseInt(document.getElementById('cfg-a-size').value) || 100000;
+        const arr = Array.from({length: size}, (_, i) => "item_" + i);
+        const target = "item_" + (size - 1);
+
         const start = performance.now();
-        let watt = 15.0; // 預估晶片功率 (W)
-        let algoName = "";
-    
-        if (promptType === 'Baseline') {
-            watt = 15.0;
-            algoName = "Baseline: 巢狀搜尋 O(N²)";
-            testData.filter((item, index) => testData.indexOf(item) === index);
-        } else if (promptType === 'Speed') {
-            watt = 10.5;
-            algoName = "Speed: ES6 Set 快取 O(N)";
-            Array.from(new Set(testData));
-        } else if (promptType === 'RAM') {
-            watt = 8.0;
-            algoName = "RAM: In-place 排序雙指標";
-            testData.slice().sort((a, b) => a - b);
-        } else { // Green Prompt
-            watt = 3.5;
-            algoName = "Green: Hash Map 惰性比對";
-            const map = new Map();
-            for (let i = 0; i < testData.length; i++) map.set(testData[i], true);
+        if (cfg.key === "P") {
+            for(let i=0; i<arr.length; i++) { if(arr[i].toUpperCase().toLowerCase() === target) break; }
+        } else if (cfg.key === "B") {
+            arr.find(x => x.indexOf(target) !== -1);
+        } else if (cfg.key === "E") {
+            arr.find(x => x === target);
+        } else {
+            let direct = arr[size - 1];
         }
-    
         const duration = performance.now() - start;
-        const energyKWh = (watt * (duration / 1000 / 3600)) / 1000;
-        const sci = energyKWh * 494000; // mgCO2e
-        const qoeScore = promptType === 'Baseline' ? 45 : 95;
-    
-        document.getElementById('res-green-time').innerText = duration.toFixed(2) + " ms";
-        document.getElementById('res-green-algo').innerText = algoName;
-        document.getElementById('res-green-watt').innerText = watt.toFixed(1) + " W";
-        document.getElementById('res-green-carbon').innerText = sci.toFixed(4) + " mgCO2e";
-        document.getElementById('res-green-qoe').innerText = qoeScore + " %";
-    
-        logsA.push({
-            id: logsA.length + 1,
-            mode: `Prompt: ${promptType}`,
-            size: size,
-            time: duration.toFixed(2) + " ms",
-            watt: watt.toFixed(1) + " W",
-            carbon: sci.toFixed(4),
-            qoe: qoeScore + "%"
-        });
+
+        const kWh = (cfg.watt * (duration / 1000 / 3600)) / 1000;
+        const sci = kWh * 494000;
+
+        document.getElementById('res-a-time').innerText = duration.toFixed(2) + " ms";
+        document.getElementById('res-a-algo').innerText = cfg.algo;
+        document.getElementById('res-a-watt').innerText = cfg.watt.toFixed(1) + " W";
+        document.getElementById('res-a-carbon').innerText = sci.toFixed(4) + " mgCO2e";
+        document.getElementById('res-a-qoe').innerText = cfg.qoe + " %";
+
+        logsA.push({ id: logsA.length + 1, mode: cfg.name, size, time: duration.toFixed(2), watt: cfg.watt.toFixed(1), carbon: sci.toFixed(4), qoe: cfg.qoe + "%" });
+
         renderTableA();
-    
-        scaleDataPoints.push({ size: size, time: duration });
-        scaleDataPoints.sort((a, b) => a.size - b.size);
-        renderChart();
+        updateStatsA();
     }
 
-    // --- 區塊 B-1：碰撞與能耗 邏輯 ---
-    function runCollisionSim() {
-        const N = parseInt(document.getElementById('cfg-proj-n').value) || 1000;
-        const M = parseInt(document.getElementById('cfg-enemy-m').value) || 3000;
-        const algo = document.getElementById('cfg-algo-type').value;
+    // 執行區塊 B Benchmark
+    function runBenchmarkB() {
+        const cfg = getActiveConfigB();
+        const size = parseInt(document.getElementById('cfg-b-size').value) || 30000;
+        const data = Array.from({length: size}, () => Math.floor(Math.random() * 1000));
 
         const start = performance.now();
-        let totalChecks = algo === 'brute' ? (N * M) / 500 : (N + M) * 2;
-        let dummyHits = 0;
-        for(let i=0; i<totalChecks; i++) { dummyHits += (i % 7 === 0) ? 1 : 0; }
-        const duration = (performance.now() - start) + (algo === 'brute' ? (N*M)/350000 : 1.2);
-
-        const watt = algo === 'brute' ? 15.0 : 4.5;
-        const qoe = Math.max(10, Math.round(100 - (duration > 16.6 ? (duration - 16.6)*3 : 0)));
-
-        document.getElementById('res-col-time').innerText = duration.toFixed(2) + " ms";
-        document.getElementById('res-col-hits').innerText = dummyHits.toLocaleString();
-        document.getElementById('res-col-watt').innerText = watt.toFixed(1) + " W";
-        document.getElementById('res-col-sci').innerText = ((watt * (duration / 1000 / 3600) / 1000) * 494000).toFixed(4) + " mgCO2e";
-        document.getElementById('res-col-qoe').innerText = qoe + " %";
-
-        logsB_Info.push({
-            id: logsB_Info.length + 1,
-            algo: algo === 'brute' ? 'Brute Force O(N×M)' : 'Spatial Hash O(N+M)',
-            scale: `${N} × ${M}`,
-            time: duration.toFixed(2) + " ms",
-            hits: dummyHits.toLocaleString(),
-            watt: watt.toFixed(1) + " W",
-            qoe: qoe + "%"
-        });
-        renderTableB_Info();
-    }
-    
-    // 繪圖模式切換
-    function switchChartMode(mode) {
-        currentChartMode = mode;
-        document.getElementById('btn-chart-step').className = 'sub-tab-btn ' + (mode === 'step' ? 'active-info' : '');
-        document.getElementById('btn-chart-scale').className = 'sub-tab-btn ' + (mode === 'scale' ? 'active-info' : '');
-        document.getElementById('chart-legend').innerText = mode === 'step' 
-            ? "橫軸：模擬裝置電量 (100% ➔ 0%) | 縱軸：系統預估功耗 (W)" 
-            : "橫軸：測試資料規模 (N 筆) | 縱軸：運算耗時 (ms)";
-        renderChart();
-    }
-    
-    // Canvas 通用繪圖函式
-    function renderChart() {
-        const canvas = document.getElementById('energyCanvas');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        
-        const rect = canvas.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) return;
-
-        canvas.width = rect.width * window.devicePixelRatio;
-        canvas.height = rect.height * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    
-        const width = rect.width;
-        const height = rect.height;
-        const padding = 40;
-    
-        ctx.clearRect(0, 0, width, height);
-    
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let x = padding; x <= width - padding; x += (width - 2 * padding) / 5) {
-            ctx.moveTo(x, padding);
-            ctx.lineTo(x, height - padding);
-        }
-        for (let y = padding; y <= height - padding; y += (height - 2 * padding) / 4) {
-            ctx.moveTo(padding, y);
-            ctx.lineTo(width - padding, y);
-        }
-        ctx.stroke();
-    
-        if (currentChartMode === 'step') {
-            drawStepChart(ctx, width, height, padding);
+        if (cfg.type === 1) {
+            data.filter((item, index) => data.indexOf(item) === index);
+        } else if (cfg.type === 2) {
+            Array.from(new Set(data));
+        } else if (cfg.type === 3) {
+            data.slice().sort((a,b) => a-b);
         } else {
-            drawScaleLineChart(ctx, width, height, padding);
+            const map = new Map();
+            for(let i=0; i<data.length; i++) map.set(data[i], true);
         }
-    }
-    
-    function drawStepChart(ctx, width, height, padding) {
-        const pWatt = parseFloat(document.getElementById('cfg-p-watt').value) || 15.0;
-        const bWatt = parseFloat(document.getElementById('cfg-b-watt').value) || 8.5;
-        const eWatt = parseFloat(document.getElementById('cfg-e-watt').value) || 3.5;
-        const uWatt = parseFloat(document.getElementById('cfg-u-watt').value) || 1.2;
-    
-        const maxWatt = Math.max(pWatt, 20.0);
-        const plotW = width - 2 * padding;
-        const plotH = height - 2 * padding;
-    
-        const getX = (battery) => padding + (1 - battery / 100) * plotW;
-        const getY = (watt) => height - padding - (watt / maxWatt) * plotH;
-    
-        const points = [
-            { b: 100, w: pWatt },
-            { b: 50,  w: pWatt },
-            { b: 50,  w: bWatt },
-            { b: 25,  w: bWatt },
-            { b: 25,  w: eWatt },
-            { b: 10,  w: eWatt },
-            { b: 10,  w: uWatt },
-            { b: 0,   w: uWatt }
-        ];
-    
-        const gradient = ctx.createLinearGradient(0, padding, 0, height - padding);
-        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
-        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-    
-        ctx.beginPath();
-        ctx.moveTo(getX(100), height - padding);
-        points.forEach(pt => ctx.lineTo(getX(pt.b), getY(pt.w)));
-        ctx.lineTo(getX(0), height - padding);
-        ctx.closePath();
-        ctx.fillStyle = gradient;
-        ctx.fill();
-    
-        ctx.beginPath();
-        ctx.strokeStyle = '#00ffcc';
-        ctx.lineWidth = 3;
-        points.forEach((pt, idx) => {
-            if (idx === 0) ctx.moveTo(getX(pt.b), getY(pt.w));
-            else ctx.lineTo(getX(pt.b), getY(pt.w));
-        });
-        ctx.stroke();
-    
-        const curB = currentBattery * 100;
-        const curConfig = getActiveConfig();
-        const curX = getX(curB);
-        const curY = getY(curConfig.watt);
-    
-        ctx.beginPath();
-        ctx.arc(curX, curY, 6, 0, Math.PI * 2);
-        ctx.fillStyle = '#ef4444';
-        ctx.fill();
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '10px sans-serif';
-        ctx.fillText('100%', getX(100) - 10, height - padding + 15);
-        ctx.fillText('50%', getX(50) - 8, height - padding + 15);
-        ctx.fillText('25%', getX(25) - 8, height - padding + 15);
-        ctx.fillText('10%', getX(10) - 8, height - padding + 15);
-        ctx.fillText('0%', getX(0) - 5, height - padding + 15);
-    
-        ctx.fillText(`${pWatt}W`, padding - 30, getY(pWatt) + 4);
-        ctx.fillText(`${uWatt}W`, padding - 30, getY(uWatt) + 4);
-    }
-    
-    function drawScaleLineChart(ctx, width, height, padding) {
-        if (scaleDataPoints.length === 0) {
-            ctx.fillStyle = '#64748b';
-            ctx.font = '14px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('請執行幾次不同資料量的測試以繪製對比折線圖', width / 2, height / 2);
-            return;
-        }
-    
-        const plotW = width - 2 * padding;
-        const plotH = height - 2 * padding;
-    
-        const maxN = Math.max(...scaleDataPoints.map(p => p.size), 10000);
-        const maxT = Math.max(...scaleDataPoints.map(p => p.time), 10);
-    
-        const getX = (n) => padding + (n / maxN) * plotW;
-        const getY = (t) => height - padding - (t / maxT) * plotH;
-    
-        ctx.beginPath();
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 2;
-        scaleDataPoints.forEach((pt, idx) => {
-            if (idx === 0) ctx.moveTo(getX(pt.size), getY(pt.time));
-            else ctx.lineTo(getX(pt.size), getY(pt.time));
-        });
-        ctx.stroke();
-    
-        scaleDataPoints.forEach(pt => {
-            ctx.beginPath();
-            ctx.arc(getX(pt.size), getY(pt.time), 4, 0, Math.PI * 2);
-            ctx.fillStyle = '#a855f7';
-            ctx.fill();
-        });
-    }
-    
-    function runBizSim() {
-        const intensity = parseInt(document.getElementById('cfg-biz-intensity').value) || 100;
-        const combo = parseInt(document.getElementById('cfg-biz-combo').value) || 0;
-        const adEnabled = document.getElementById('cfg-biz-ad').value === 'enabled';
+        const duration = performance.now() - start;
 
-        let flowIndex = Math.min(100, Math.max(20, 100 - Math.abs(intensity - 120)));
-        let sessionTime = Math.round(180 + combo * 1.5 - (intensity * 0.4));
-        let adRate = adEnabled ? Math.min(85, Math.round((intensity / 200) * 60 + 15)) : 0;
-        let retention = Math.round((flowIndex * 0.5) + (adRate * 0.2) + 20);
+        const kWh = (cfg.watt * (duration / 1000 / 3600)) / 1000;
+        const sci = kWh * 494000;
 
-        document.getElementById('res-biz-flow').innerText = flowIndex + " / 100";
-        document.getElementById('res-biz-session').innerText = sessionTime + " s";
-        document.getElementById('res-biz-adrate').innerText = adRate + " %";
-        document.getElementById('res-biz-retention').innerText = retention + " %";
+        document.getElementById('res-b-time').innerText = duration.toFixed(2) + " ms";
+        document.getElementById('res-b-algo').innerText = cfg.algo;
+        document.getElementById('res-b-watt').innerText = cfg.watt.toFixed(1) + " W";
+        document.getElementById('res-b-carbon').innerText = sci.toFixed(4) + " mgCO2e";
+        document.getElementById('res-b-qoe').innerText = cfg.qoe + " %";
 
-        logsB_Biz.push({
-            id: logsB_Biz.length + 1,
-            intensity: intensity + "%",
-            combo: combo,
-            session: sessionTime + " s",
-            flow: flowIndex,
-            adRate: adRate + "%",
-            retention: retention + "%"
-        });
-        renderTableB_Biz();
+        logsB.push({ id: logsB.length + 1, mode: cfg.name, size, time: duration.toFixed(2), watt: cfg.watt.toFixed(1), carbon: sci.toFixed(4), qoe: cfg.qoe + "%" });
+
+        renderTableB();
+        updateStatsB();
+    }
+
+    function updateStatsA() {
+        if (logsA.length === 0) return;
+        const times = logsA.map(l => parseFloat(l.time));
+        const watts = logsA.map(l => parseFloat(l.watt));
+
+        chartATrend.data.labels = logsA.map(l => `#${l.id}`);
+        chartATrend.data.datasets[0].data = times;
+        chartATrend.data.datasets[1].data = watts;
+        chartATrend.update();
+
+        document.getElementById('stat-a-runs').innerText = logsA.length + " 次";
+        document.getElementById('stat-a-avgtime').innerText = (times.reduce((a,b)=>a+b,0)/logsA.length).toFixed(2) + " ms";
+        document.getElementById('stat-a-avgwatt').innerText = (watts.reduce((a,b)=>a+b,0)/logsA.length).toFixed(2) + " W";
+        document.getElementById('stat-a-totalcarbon').innerText = logsA.reduce((a,b)=>a+parseFloat(b.carbon),0).toFixed(4) + " mgCO2e";
+    }
+
+    function updateStatsB() {
+        if (logsB.length === 0) return;
+        const times = logsB.map(l => parseFloat(l.time));
+        const watts = logsB.map(l => parseFloat(l.watt));
+
+        chartBTrend.data.labels = logsB.map(l => `#${l.id}`);
+        chartBTrend.data.datasets[0].data = times;
+        chartBTrend.data.datasets[1].data = watts;
+        chartBTrend.update();
+
+        document.getElementById('stat-b-runs').innerText = logsB.length + " 次";
+        document.getElementById('stat-b-avgtime').innerText = (times.reduce((a,b)=>a+b,0)/logsB.length).toFixed(2) + " ms";
+        document.getElementById('stat-b-avgwatt').innerText = (watts.reduce((a,b)=>a+b,0)/logsB.length).toFixed(2) + " W";
+        document.getElementById('stat-b-totalcarbon').innerText = logsB.reduce((a,b)=>a+parseFloat(b.carbon),0).toFixed(4) + " mgCO2e";
     }
 
     function renderTableA() {
         const tbody = document.getElementById('log-body-a');
-        if (!tbody || logsA.length === 0) return;
-
-        const limit = parseInt(document.getElementById('limit-green').value) || 10;
-        const visibleLogs = logsA.slice(-limit).reverse();
-
-        tbody.innerHTML = visibleLogs.map(l => `
+        if (logsA.length === 0) return;
+        const limit = parseInt(document.getElementById('limit-a').value) || 10;
+        tbody.innerHTML = logsA.slice(-limit).reverse().map(l => `
             <tr>
                 <td>${l.id}</td>
-                <td style="color:var(--accent); font-weight:bold;">${l.mode}</td>
+                <td style="color:var(--accent-green); font-weight:bold;">${l.mode}</td>
                 <td>${l.size.toLocaleString()}</td>
-                <td>${l.time}</td>
-                <td>${l.watt}</td>
+                <td>${l.time} ms</td>
+                <td>${l.watt} W</td>
                 <td style="color:#818cf8;">${l.carbon}</td>
-                <td style="color:#facc15; font-weight:bold;">${l.qoe}</td>
+                <td style="color:#facc15;">${l.qoe}</td>
             </tr>
         `).join('');
     }
 
-    function renderTableB_Info() {
-        const tbody = document.getElementById('log-body-b-info');
-        if (!tbody || logsB_Info.length === 0) return;
-
-        const limit = parseInt(document.getElementById('limit-neon-info').value) || 10;
-        const visibleLogs = logsB_Info.slice(-limit).reverse();
-
-        tbody.innerHTML = visibleLogs.map(l => `
+    function renderTableB() {
+        const tbody = document.getElementById('log-body-b');
+        if (logsB.length === 0) return;
+        const limit = parseInt(document.getElementById('limit-b').value) || 10;
+        tbody.innerHTML = logsB.slice(-limit).reverse().map(l => `
             <tr>
                 <td>${l.id}</td>
-                <td style="color:#38bdf8; font-weight:bold;">${l.algo}</td>
-                <td>${l.scale}</td>
-                <td>${l.time}</td>
-                <td>${l.hits}</td>
-                <td>${l.watt}</td>
-                <td style="color:#facc15; font-weight:bold;">${l.qoe}</td>
-            </tr>
-        `).join('');
-    }
-
-    function renderTableB_Biz() {
-        const tbody = document.getElementById('log-body-b-biz');
-        if (!tbody || logsB_Biz.length === 0) return;
-
-        const limit = parseInt(document.getElementById('limit-neon-biz').value) || 10;
-        const visibleLogs = logsB_Biz.slice(-limit).reverse();
-
-        tbody.innerHTML = visibleLogs.map(l => `
-            <tr>
-                <td>${l.id}</td>
-                <td style="color:var(--purple-light); font-weight:bold;">${l.intensity}</td>
-                <td>${l.combo}</td>
-                <td>${l.session}</td>
-                <td>${l.flow}</td>
-                <td style="color:#facc15;">${l.adRate}</td>
-                <td style="color:#4ade80; font-weight:bold;">${l.retention}</td>
+                <td style="color:var(--accent-cyan); font-weight:bold;">${l.mode}</td>
+                <td>${l.size.toLocaleString()}</td>
+                <td>${l.time} ms</td>
+                <td>${l.watt} W</td>
+                <td style="color:#818cf8;">${l.carbon}</td>
+                <td style="color:#facc15;">${l.qoe}</td>
             </tr>
         `).join('');
     }
 
     function exportCSVA() {
-        if(logsA.length === 0) return alert("區塊 A 尚無數據可匯出！");
-        let csv = "data:text/csv;charset=utf-8,ID,Mode,DataSize,DurationTime,Watt,Carbon_mgCO2e,QoE\n";
-        logsA.forEach(r => { 
-            csv += `${r.id},"${r.mode}",${r.size},"${r.time}","${r.watt}","${r.carbon}","${r.qoe}"\n`; 
-        });
-        const a = document.createElement('a'); 
-        a.href = encodeURI(csv); 
-        a.download = "green_coding_telemetry_a.csv"; 
-        a.click();
+        if(logsA.length === 0) return alert("區塊 A 無數據！");
+        let csv = "data:text/csv;charset=utf-8,ID,Mode,DataSize,Duration_ms,Watt,Carbon_mgCO2e,QoE\n";
+        logsA.forEach(r => { csv += `${r.id},"${r.mode}",${r.size},"${r.time}","${r.watt}","${r.carbon}","${r.qoe}"\n`; });
+        const a = document.createElement('a'); a.href = encodeURI(csv); a.download = "green_coding_section_a.csv"; a.click();
     }
 
-    function exportCSVB_Info() {
-        if(logsB_Info.length === 0) return alert("區塊 B-1 尚無數據可匯出！");
-        let csv = "data:text/csv;charset=utf-8,ID,Algorithm,Scale,DurationTime,Hits,Watt,QoE\n";
-        logsB_Info.forEach(r => { 
-            csv += `${r.id},"${r.algo}","${r.scale}","${r.time}","${r.hits}","${r.watt}","${r.qoe}"\n`; 
-        });
-        const a = document.createElement('a'); 
-        a.href = encodeURI(csv); 
-        a.download = "neon_collision_telemetry_b1.csv"; 
-        a.click();
+    function exportCSVB() {
+        if(logsB.length === 0) return alert("區塊 B 無數據！");
+        let csv = "data:text/csv;charset=utf-8,ID,PromptStrategy,DataSize,Duration_ms,Watt,Carbon_mgCO2e,QualityScore\n";
+        logsB.forEach(r => { csv += `${r.id},"${r.mode}",${r.size},"${r.time}","${r.watt}","${r.carbon}","${r.qoe}"\n`; });
+        const a = document.createElement('a'); a.href = encodeURI(csv); a.download = "ai_prompt_section_b.csv"; a.click();
     }
 
-    function exportCSVB_Biz() {
-        if(logsB_Biz.length === 0) return alert("區塊 B-2 尚無數據可匯出！");
-        let csv = "data:text/csv;charset=utf-8,ID,Intensity,Combo,SessionTime,FlowIndex,AdConversion,RetentionRate\n";
-        logsB_Biz.forEach(r => { 
-            csv += `${r.id},"${r.intensity}",${r.combo},"${r.session}",${r.flow},"${r.adRate}","${r.retention}"\n`; 
-        });
-        const a = document.createElement('a'); 
-        a.href = encodeURI(csv); 
-        a.download = "neon_dda_telemetry_b2.csv"; 
-        a.click();
-    }
-
-    // 初始化頁面
-    document.addEventListener('DOMContentLoaded', () => {
-        setupBatterySlider();
-        updateCurrentMode();
-        renderChart();
-    });
+    window.onload = function() {
+        updateCurrentModeA();
+        updatePromptBadge();
+        initCharts();
+    };
 </script>
+
 </body>
 </html>
