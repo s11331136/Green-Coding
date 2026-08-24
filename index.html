@@ -30,7 +30,6 @@
         h1 { text-align: center; color: var(--accent); margin-bottom: 4px; letter-spacing: 1px; }
         .subtitle { text-align: center; color: #94a3b8; margin-bottom: 20px; font-size: 0.9em; }
         
-        /* 頂層主頁籤 */
         .main-tab-group { display: flex; gap: 12px; margin-bottom: 20px; }
         .main-tab-btn {
             flex: 1; padding: 14px; font-size: 17px; font-weight: bold;
@@ -47,7 +46,6 @@
             box-shadow: 0 0 12px rgba(168,85,247,0.4); 
         }
 
-        /* 子頁籤（用於 Neon Survivor 內部） */
         .sub-tab-group { display: flex; gap: 10px; margin-bottom: 16px; }
         .sub-tab-btn {
             flex: 1; padding: 10px; font-size: 14px; font-weight: bold;
@@ -96,7 +94,6 @@
         .mode-settings-block { background: #0f172a; padding: 12px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #1e293b; }
         .mode-title { font-weight: bold; color: var(--accent); margin-bottom: 8px; font-size: 0.9em; }
 
-        /* 表格與控制工具列 */
         .log-toolbar {
             display: flex;
             justify-content: space-between;
@@ -122,319 +119,289 @@
 <body>
 
 <div class="container">
-    <h1>🌐 綠色軟體工程與使用者監測平台</h1>
-    <div class="subtitle">整合軟體節能（Eco-Mode 演算法）與遊戲行為（碰撞能耗/DDA 留存）之遙測系統</div>
+    <h1>🌱 綠色軟體工程 (Green-Coding) 模擬平台</h1>
+    <div class="subtitle">針對 AI 程式碼能耗與動態降級進行硬體與 QoE 評估</div>
 
-    <!-- 頂層分區頁籤 -->
+    <!-- 頂層主頁籤 -->
     <div class="main-tab-group">
-        <button class="main-tab-btn active-green" id="main-btn-green" onclick="switchMainTab('green')">
-            🌱 區塊 A：【綠色軟體工程】<br><span style="font-size:0.75em; font-weight:normal;">自適應 Eco-Mode 演算法能耗與體驗</span>
-        </button>
-        <button class="main-tab-btn" id="main-btn-neon" onclick="switchMainTab('neon')">
-            🎮 區塊 B：【Neon Survivor】<br><span style="font-size:0.75em; font-weight:normal;">跨領域遊戲遙測與 DDA 模擬</span>
-        </button>
+        <button id="main-btn-green" class="main-tab-btn active-green" onclick="switchMainTab('green')">🌱 綠色軟體工程 (Eco-Mode & Prompt Benchmark)</button>
+        <button id="main-btn-neon" class="main-tab-btn" onclick="switchMainTab('neon')">🎮 Neon Survivor 專案模擬 (碰撞 & 商業 DDA)</button>
     </div>
 
-    <!-- ================= 區塊 A：綠色軟體工程 ================= -->
+    <!-- ================= 區塊 A：綠色軟體工程與 Prompt 基準測試 ================= -->
     <div id="main-section-green">
+        
+        <!-- 卡片 1：動態降級系統 (Battery Eco-Mode) -->
         <div class="card">
-            <h2 class="green-header">🔋 裝置電量與動態模式遙測 (Telemetry)</h2>
-            <div style="margin-bottom: 12px;">
-                <label for="mock-battery">當前模擬電量：<span id="mock-val" style="font-weight:bold; color:var(--accent);">100</span>%</label>
-                <input type="range" id="mock-battery" min="1" max="100" value="100" style="width:100%; margin-top:8px;">
+            <h2 class="green-header">🔋 模擬裝置電量與自適應降級 (Adaptive Eco-Mode)</h2>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label>模擬裝置電量 (Battery Level): <strong id="mock-val" style="color:var(--accent);">100</strong>%</label>
+                <input type="range" id="mock-battery" min="1" max="100" value="100">
             </div>
-            <div>
-                當前觸發模式：<span id="mode-badge" class="status-badge" style="background:#2563eb; color:#fff;">未初始化</span>
-            </div>
-        </div>
 
-        <div class="card">
-            <h2 class="green-header">⚙️ 自訂模式參數設定</h2>
-            
-            <div class="mode-settings-block">
-                <div class="mode-title">1. 高效能模式（電量 > 50%）</div>
-                <div class="form-grid">
-                    <div class="form-group"><label>顯示名稱</label><input type="text" id="cfg-p-name" value="Performance 高效能模式"></div>
-                    <div class="form-group"><label>演算法標籤</label><input type="text" id="cfg-p-algo" value="標準高負載 (O(N) 雙重處理)"></div>
-                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-p-watt" value="15.0" step="0.1"></div>
+            <!-- 四種模式的參數微調表單 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                <div class="mode-settings-block">
+                    <div class="mode-title" style="color:#3b82f6;">⚡ 效能優先 (> 50%)</div>
+                    <div class="form-group"><label>模式名稱</label><input type="text" id="cfg-p-name" value="⚡ 效能優先 (全功率)"></div>
+                    <div class="form-group"><label>底層演算法</label><input type="text" id="cfg-p-algo" value="深層地圖渲染 + 大資料量深拷貝"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-p-watt" value="15.0" step="0.5"></div>
                 </div>
-            </div>
 
-            <div class="mode-settings-block">
-                <div class="mode-title">2. 平衡模式（25% < 電量 ≤ 50%）</div>
-                <div class="form-grid">
-                    <div class="form-group"><label>顯示名稱</label><input type="text" id="cfg-b-name" value="Balanced 平衡模式"></div>
-                    <div class="form-group"><label>演算法標籤</label><input type="text" id="cfg-b-algo" value="平衡調適 (O(N) 單次搜尋)"></div>
-                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-b-watt" value="8.5" step="0.1"></div>
+                <div class="mode-settings-block">
+                    <div class="mode-title" style="color:#f59e0b;">⚖️ 平衡模式 (25% ~ 50%)</div>
+                    <div class="form-group"><label>模式名稱</label><input type="text" id="cfg-b-name" value="⚖️ 平衡模式"></div>
+                    <div class="form-group"><label>底層演算法</label><input type="text" id="cfg-b-algo" value="關閉陰影 + Map 快速搜尋"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-b-watt" value="8.5" step="0.5"></div>
                 </div>
-            </div>
 
-            <div class="mode-settings-block">
-                <div class="mode-title">3. 標準省電模式（10% < 電量 ≤ 25%）</div>
-                <div class="form-grid">
-                    <div class="form-group"><label>顯示名稱</label><input type="text" id="cfg-e-name" value="Eco-Mode 標準省電模式"></div>
-                    <div class="form-group"><label>演算法標籤</label><input type="text" id="cfg-e-algo" value="AI 綠色重構 (Hash Target)"></div>
-                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-e-watt" value="3.5" step="0.1"></div>
+                <div class="mode-settings-block">
+                    <div class="mode-title" style="color:#10b981;">🍃 省電模式 (10% ~ 25%)</div>
+                    <div class="form-group"><label>模式名稱</label><input type="text" id="cfg-e-name" value="🍃 省電模式"></div>
+                    <div class="form-group"><label>底層演算法</label><input type="text" id="cfg-e-algo" value="空間 Hash 陣列 + 降採樣"></div>
+                    <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-e-watt" value="3.5" step="0.5"></div>
                 </div>
-            </div>
 
-            <div class="mode-settings-block">
-                <div class="mode-title">4. 極致省電模式（電量 ≤ 10%）</div>
-                <div class="form-grid">
-                    <div class="form-group"><label>顯示名稱</label><input type="text" id="cfg-u-name" value="Ultra Eco 極致省電模式"></div>
-                    <div class="form-group"><label>演算法標籤</label><input type="text" id="cfg-u-algo" value="極限降級 (Direct Key Indexing)"></div>
+                <div class="mode-settings-block">
+                    <div class="mode-title" style="color:#047857;">🚨 極度省電 (< 10%)</div>
+                    <div class="form-group"><label>模式名稱</label><input type="text" id="cfg-u-name" value="🚨 極度省電模式"></div>
+                    <div class="form-group"><label>底層演算法</label><input type="text" id="cfg-u-algo" value="凍結背景 + 僅核心陣列比對"></div>
                     <div class="form-group"><label>預估功耗 (W)</label><input type="number" id="cfg-u-watt" value="1.2" step="0.1"></div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>測試運算筆數 (N)</label>
-                <input type="number" id="cfg-data-size" value="100000" step="10000">
+            <div style="margin-top: 12px;">
+                <span style="font-size:0.9em; color:#94a3b8;">當前切換模式：</span>
+                <span id="mode-badge" class="status-badge">⚡ 效能優先 (全功率)</span>
             </div>
-            <button class="btn" style="margin-top:12px;" onclick="runGreenBenchmark()">執行 Green Coding 模擬運算</button>
         </div>
 
-        
-        <!-- 🤖 AI Prompt 節能對比矩陣卡片 -->
+        <!-- 卡片 2：演算法 Benchmark 與 AI Prompt 測試區 -->
         <div class="card">
-            <h2 class="green-header">🤖 AI Prompt 節能對比矩陣 (Green Prompt Engineering)</h2>
-            <div style="font-size: 0.85em; color: #94a3b8; margin-bottom: 12px;">
-                評測相同業務需求下，下達不同 AI 重構指令（Prompt）對演算法 CPU 能耗與碳排放的影響。
-            </div>
+            <h2 class="green-header">🧪 演算法與 AI Prompt 能耗基準測試</h2>
             
             <div class="form-grid">
                 <div class="form-group">
-                    <label>選擇測試 Prompt 變因</label>
+                    <label>測試資料規模 (N 筆數)</label>
+                    <input type="number" id="cfg-data-size" value="100000">
+                </div>
+                <div class="form-group">
+                    <label>AI Prompt 重構策略對比</label>
                     <select id="cfg-prompt-type">
-                        <option value="Baseline">版本 A (Baseline)：未優化原始代碼 O(N²)</option>
-                        <option value="Speed">指令 B (Speed Prompt)：「執行速度最快為目標」</option>
-                        <option value="RAM">指令 C (RAM Prompt)：「記憶體佔用最少為目標」</option>
-                        <option value="Green" selected>指令 D (Green Prompt)：「CPU 功率與綠色節能為目標」</option>
+                        <option value="Baseline">無提示詞（原始 AI 產出 / 嵌套迴圈 O(N²)）</option>
+                        <option value="Speed">Prompt: 「追求極速執行速度」</option>
+                        <option value="RAM">Prompt: 「追求記憶體最省」</option>
+                        <option value="Green">Green Prompt: 「追求最高能效 (Green Coding)」</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>資料陣列筆數 (N)</label>
-                    <input type="number" id="cfg-prompt-size" value="30000" step="5000">
+                    <label>Prompt 測試規模 (N)</label>
+                    <input type="number" id="cfg-prompt-size" value="30000">
                 </div>
             </div>
-            <button class="btn" style="background:#10b981; color:#000; margin-top:8px;" onclick="runPromptBenchmark()">
-                執行 AI Prompt 重構跑分測試
-            </button>
+
+            <div style="display:flex; gap:10px; margin-bottom: 15px;">
+                <button class="btn" onclick="runGreenBenchmark()">🚀 執行目前 Eco-Mode 測試</button>
+                <button class="btn" style="background:#38bdf8; color:#000;" onclick="runPromptBenchmark()">🤖 執行 AI Prompt 能耗重構測試</button>
+            </div>
+
+            <!-- 即時量測結果 -->
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <div class="metric-label">執行總耗時 (Duration)</div>
+                    <div class="metric-val" id="res-green-time" style="color:var(--accent);">0.00 ms</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">當前演算法名稱</div>
+                    <div class="metric-val" id="res-green-algo" style="font-size:0.95em; color:#cbd5e1;">-</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">晶片預估功率 (Watt)</div>
+                    <div class="metric-val" id="res-green-watt" style="color:#f59e0b;">0.0 W</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">估算碳排放量 (SCI)</div>
+                    <div class="metric-val" id="res-green-carbon" style="color:#818cf8;">0.0000 mgCO2e</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">使用者體驗 (QoE)</div>
+                    <div class="metric-val" id="res-green-qoe" style="color:#facc15;">0 %</div>
+                </div>
+            </div>
         </div>
 
+        <!-- 卡片 3：動態 Canvas 可視化圖表 -->
         <div class="card">
-            <h2 class="green-header">⚡ 能耗與體驗數據採集面板</h2>
-            <div class="metrics-grid">
-                <div class="metric-box"><div class="metric-label">執行時間</div><div class="metric-val" id="res-green-time" style="color:var(--accent);">0 ms</div></div>
-                <div class="metric-box"><div class="metric-label">採用的演算法</div><div class="metric-val" id="res-green-algo" style="font-size:0.8em;">無</div></div>
-                <div class="metric-box"><div class="metric-label">推估功耗</div><div class="metric-val" id="res-green-watt">0 W</div></div>
-                <div class="metric-box"><div class="metric-label">預估碳排放 (SCI)</div><div class="metric-val" id="res-green-carbon" style="color:#818cf8;">0 mgCO2e</div></div>
-                <div class="metric-box"><div class="metric-label">體驗品質 (QoE 指數)</div><div class="metric-val" id="res-green-qoe" style="color:#facc15;">100 %</div></div>
-            </div>
-        </div>
-        <!-- 📊 動態圖表視覺化面板 -->
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
-                <h2 class="green-header" style="margin-bottom:0; border:none;">📈 動態能耗與演算法趨勢圖 (Canvas Visualizer)</h2>
-                <div style="display:flex; gap:8px;">
-                    <button onclick="switchChartMode('step')" class="sub-tab-btn active-info" id="btn-chart-step" style="padding:4px 10px; font-size:0.8em;">⚡ 電量階梯曲線</button>
-                    <button onclick="switchChartMode('scale')" class="sub-tab-btn" id="btn-chart-scale" style="padding:4px 10px; font-size:0.8em;">📊 資料規模 (N) 折線圖</button>
+            <div style="display:flex; justify-space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
+                <h2 class="green-header" style="margin:0; border:none; padding:0;">📊 綠色軟體視覺化分析圖表</h2>
+                <div class="sub-tab-group" style="margin:0;">
+                    <button id="btn-chart-step" class="sub-tab-btn active-info" onclick="switchChartMode('step')">📉 電量降級階梯曲線</button>
+                    <button id="btn-chart-scale" class="sub-tab-btn" onclick="switchChartMode('scale')">📈 資料規模 (N) 耗時折線圖</button>
                 </div>
             </div>
-            <div style="position:relative; width:100%; height:260px;">
-                <canvas id="energyCanvas" style="width:100%; height:100%; background:#0f172a; border-radius:8px; border:1px solid #334155;"></canvas>
+            <div id="chart-legend" style="font-size:0.8em; color:#94a3b8; margin-bottom:8px;">
+                橫軸：模擬裝置電量 (100% ➔ 0%) | 縱軸：系統預估功耗 (W)
             </div>
-            <div id="chart-legend" style="font-size:0.8em; color:#94a3b8; margin-top:8px; text-align:center;">
-                橫軸：模擬裝置電量 (%) | 縱軸：預估功率 (W)
+            <div style="position:relative; width:100%; height:260px; background:#0f172a; border-radius:8px; border:1px solid var(--border);">
+                <canvas id="energyCanvas" style="width:100%; height:100%; display:block;"></canvas>
             </div>
         </div>
-        <!-- 區塊 A 專屬歷史紀錄 -->
+
+        <!-- 卡片 4：區塊 A 歷史紀錄 telemetry -->
         <div class="card">
-            <h2 class="green-header">📊 區塊 A 歷史紀錄 Log (綠色軟體工程)</h2>
             <div class="log-toolbar">
+                <h2 class="green-header" style="margin:0; border:none; padding:0;">📜 區塊 A 遙測數據紀錄 (Telemetry Logs)</h2>
                 <div>
-                    <label style="font-size:0.85em; color:#cbd5e1;">一次顯示筆數：</label>
+                    <label style="font-size:0.85em; color:#94a3b8;">顯示筆數：</label>
                     <select id="limit-green" class="select-limit" onchange="renderTableA()">
-                        <option value="10" selected>10 筆</option>
-                        <option value="20">20 筆</option>
-                        <option value="30">30 筆</option>
-                        <option value="50">50 筆</option>
-                        <option value="100">100 筆</option>
+                        <option value="5">最新 5 筆</option>
+                        <option value="10" selected>最新 10 筆</option>
+                        <option value="20">最新 20 筆</option>
+                        <option value="9999">全部顯示</option>
                     </select>
+                    <button onclick="exportCSVA()" style="background:#10b981; color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-left:8px;">📥 匯出 CSV</button>
                 </div>
-                <button onclick="exportCSVA()" style="background:#059669; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85em;">匯出區塊 A CSV</button>
             </div>
             <div style="overflow-x:auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>觸發模式/名稱</th>
-                            <th>資料量 (N)</th>
-                            <th>耗時</th>
-                            <th>功耗 (W)</th>
-                            <th>碳排放 (mgCO2e)</th>
-                            <th>QoE (%)</th>
+                            <th>測試模式 / Prompt</th>
+                            <th>資料規模 (N)</th>
+                            <th>執行耗時</th>
+                            <th>晶片功率</th>
+                            <th>估算碳排 (mgCO2e)</th>
+                            <th>QoE 滿意度</th>
                         </tr>
                     </thead>
                     <tbody id="log-body-a">
-                        <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無實驗數據，請點擊上方按鈕執行運算</td></tr>
+                        <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無測試數據，請點擊上方按鈕執行測試</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
+
     </div>
 
-
-    <!-- ================= 區塊 B：Neon Survivor ================= -->
+    <!-- ================= 區塊 B：Neon Survivor 專案模擬 ================= -->
     <div id="main-section-neon" style="display:none;">
-        
         <div class="sub-tab-group">
-            <button class="sub-tab-btn active-info" id="sub-btn-info" onclick="switchNeonSubTab('info')">💻 第一小部分：【資訊類】碰撞演算與能耗</button>
-            <button class="sub-tab-btn" id="sub-btn-biz" onclick="switchNeonSubTab('biz')">📈 第二小部分：【商業類】玩家行為與 DDA</button>
+            <button id="sub-btn-info" class="sub-tab-btn active-info" onclick="switchNeonSubTab('info')">🎮 B-1: 空間 Hash 碰撞能耗對比</button>
+            <button id="sub-btn-biz" class="sub-tab-btn" onclick="switchNeonSubTab('biz')">💼 B-2: 商業 DDA 動態難度與留存</button>
         </div>
 
-        <!-- Neon Survivor 第一小部分（資訊類） -->
+        <!-- 子區塊 B-1 -->
         <div id="neon-sub-info">
             <div class="card">
-                <h2 class="info-header">⚙️ 碰撞演算法與物件數 ($N \times M$) 設定</h2>
+                <h2 class="info-header">🎮 彈幕碰撞檢測 - 演算法能耗測試</h2>
                 <div class="form-grid">
-                    <div class="form-group"><label>子彈數 ($N$)</label><input type="number" id="cfg-proj-n" value="1000"></div>
-                    <div class="form-group"><label>敵人數 ($M$)</label><input type="number" id="cfg-enemy-m" value="3000"></div>
+                    <div class="form-group"><label>玩家投射物 (N)</label><input type="number" id="cfg-proj-n" value="1000"></div>
+                    <div class="form-group"><label>敵方單位 (M)</label><input type="number" id="cfg-enemy-m" value="3000"></div>
                     <div class="form-group">
-                        <label>檢測演算法</label>
+                        <label>演算架構策略</label>
                         <select id="cfg-algo-type">
-                            <option value="brute">Performance 暴力檢測 O(N×M)</option>
-                            <option value="spatial">Spatial Hash 空間分區 O(N+M)</option>
+                            <option value="brute">雙重迴圈暴搜 O(N×M)</option>
+                            <option value="spatial">空間 Hash 網格 O(N+M)</option>
                         </select>
                     </div>
                 </div>
-                <button class="btn" onclick="runCollisionSim()">執行碰撞運算模擬</button>
-            </div>
+                <button class="btn" style="background:#38bdf8;" onclick="runCollisionSim()">⚡ 執行碰撞模擬測試</button>
 
-            <div class="card">
-                <h2 class="info-header">⚡ 碰撞效能與碳排放數據採集</h2>
                 <div class="metrics-grid">
-                    <div class="metric-box"><div class="metric-label">碰撞運算耗時</div><div class="metric-val" id="res-col-time" style="color:#38bdf8;">0 ms</div></div>
-                    <div class="metric-box"><div class="metric-label">碰撞判定命中數</div><div class="metric-val" id="res-col-hits" style="color:var(--accent);">0</div></div>
-                    <div class="metric-box"><div class="metric-label">推估功耗</div><div class="metric-val" id="res-col-watt">0 W</div></div>
-                    <div class="metric-box"><div class="metric-label">碳排放 (SCI)</div><div class="metric-val" id="res-col-sci" style="color:#818cf8;">0 mgCO2e</div></div>
-                    <div class="metric-box"><div class="metric-label">體驗品質 (QoE)</div><div class="metric-val" id="res-col-qoe" style="color:#facc15;">100 %</div></div>
+                    <div class="metric-box"><div class="metric-label">運算耗時</div><div class="metric-val" id="res-col-time" style="color:#38bdf8;">0.00 ms</div></div>
+                    <div class="metric-box"><div class="metric-label">有效碰撞觸發</div><div class="metric-val" id="res-col-hits" style="color:#cbd5e1;">0</div></div>
+                    <div class="metric-box"><div class="metric-label">當前功耗</div><div class="metric-val" id="res-col-watt" style="color:#f59e0b;">0.0 W</div></div>
+                    <div class="metric-box"><div class="metric-label">單次估碳</div><div class="metric-val" id="res-col-sci" style="color:#818cf8;">0.0000 mgCO2e</div></div>
+                    <div class="metric-box"><div class="metric-label">流暢度 QoE</div><div class="metric-val" id="res-col-qoe" style="color:#facc15;">0 %</div></div>
                 </div>
             </div>
 
-            <!-- 第一小部分專屬歷史紀錄 -->
             <div class="card">
-                <h2 class="info-header">📊 區塊 B-1 歷史紀錄 Log (碰撞演算與能耗)</h2>
                 <div class="log-toolbar">
+                    <h2 class="info-header" style="margin:0; border:none; padding:0;">📜 B-1 碰撞能耗遙測紀錄</h2>
                     <div>
-                        <label style="font-size:0.85em; color:#cbd5e1;">一次顯示筆數：</label>
                         <select id="limit-neon-info" class="select-limit" onchange="renderTableB_Info()">
-                            <option value="10" selected>10 筆</option>
-                            <option value="20">20 筆</option>
-                            <option value="30">30 筆</option>
-                            <option value="50">50 筆</option>
-                            <option value="100">100 筆</option>
+                            <option value="5">最新 5 筆</option>
+                            <option value="10" selected>最新 10 筆</option>
+                            <option value="20">最新 20 筆</option>
                         </select>
+                        <button onclick="exportCSVB_Info()" style="background:#38bdf8; color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-left:8px;">📥 匯出 CSV</button>
                     </div>
-                    <button onclick="exportCSVB_Info()" style="background:#0284c7; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85em;">匯出 B-1 碰撞 CSV</button>
                 </div>
                 <div style="overflow-x:auto;">
                     <table>
                         <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>演算模式</th>
-                                <th>物件規模 (N×M)</th>
-                                <th>運算耗時</th>
-                                <th>關鍵命中數</th>
-                                <th>功耗 (W)</th>
-                                <th>QoE (%)</th>
-                            </tr>
+                            <tr><th>#</th><th>演算法架構</th><th>規模 (N×M)</th><th>運算耗時</th><th>碰撞數</th><th>晶片功耗</th><th>QoE</th></tr>
                         </thead>
                         <tbody id="log-body-b-info">
-                            <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無碰撞測試數據，請點擊上方按鈕執行運算</td></tr>
+                            <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無模擬數據</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- Neon Survivor 第二小部分（商業類） - 紫色系風格 -->
+        <!-- 子區塊 B-2 -->
         <div id="neon-sub-biz" style="display:none;">
             <div class="card">
-                <h2 class="biz-header">🎯 遊戲動態難度 (DDA) 與商業機制參數</h2>
+                <h2 class="biz-header">💼 商業模型 - 動態難度 (DDA) 與玩家留存</h2>
                 <div class="form-grid">
-                    <div class="form-group"><label>系統強度 (Intensity %)</label><input type="number" id="cfg-biz-intensity" value="150"></div>
-                    <div class="form-group"><label>平均 Combo 數</label><input type="number" id="cfg-biz-combo" value="45"></div>
+                    <div class="form-group"><label>刷怪強度 (%)</label><input type="number" id="cfg-biz-intensity" value="120"></div>
+                    <div class="form-group"><label>Combo 連擊係數</label><input type="number" id="cfg-biz-combo" value="45"></div>
                     <div class="form-group">
-                        <label>廣告復活機制</label>
+                        <label>插播廣告動態機制</label>
                         <select id="cfg-biz-ad">
-                            <option value="enabled">開啟 (Restore 50% HP)</option>
+                            <option value="enabled">開啟 (高負載觸發)</option>
                             <option value="disabled">關閉</option>
                         </select>
                     </div>
                 </div>
-                <button class="btn btn-biz" onclick="runBizSim()">執行玩家行為與留存率推估</button>
-            </div>
+                <button class="btn btn-biz" onclick="runBizSim()">📈 計算商業與留存指標</button>
 
-            <div class="card">
-                <h2 class="biz-header">📊 商業行為與玩家心理遙測數據</h2>
                 <div class="metrics-grid">
-                    <div class="metric-box"><div class="metric-label">心流狀態體驗指數</div><div class="metric-val" id="res-biz-flow" style="color:var(--purple-light);">0</div></div>
-                    <div class="metric-box"><div class="metric-label">預估單局遊玩時長</div><div class="metric-val" id="res-biz-session" style="color:#38bdf8;">0 s</div></div>
-                    <div class="metric-box"><div class="metric-label">廣告轉化率 (Revive)</div><div class="metric-val" id="res-biz-adrate" style="color:#facc15;">0 %</div></div>
-                    <div class="metric-box"><div class="metric-label">次日留存預估</div><div class="metric-val" id="res-biz-retention" style="color:#4ade80;">0 %</div></div>
+                    <div class="metric-box"><div class="metric-label">心流指數 (Flow)</div><div class="metric-val" id="res-biz-flow" style="color:var(--purple-light);">0 / 100</div></div>
+                    <div class="metric-box"><div class="metric-label">單局停留時間</div><div class="metric-val" id="res-biz-session" style="color:#cbd5e1;">0 s</div></div>
+                    <div class="metric-box"><div class="metric-label">廣告變現轉化率</div><div class="metric-val" id="res-biz-adrate" style="color:#facc15;">0 %</div></div>
+                    <div class="metric-box"><div class="metric-label">次日預估留存率</div><div class="metric-val" id="res-biz-retention" style="color:#4ade80;">0 %</div></div>
                 </div>
             </div>
 
-            <!-- 第二小部分專屬歷史紀錄（紫色系風格） -->
             <div class="card">
-                <h2 class="biz-header">📊 區塊 B-2 歷史紀錄 Log (玩家行為與 DDA)</h2>
                 <div class="log-toolbar">
+                    <h2 class="biz-header" style="margin:0; border:none; padding:0;">📜 B-2 商業與留存遙測紀錄</h2>
                     <div>
-                        <label style="font-size:0.85em; color:#cbd5e1;">一次顯示筆數：</label>
                         <select id="limit-neon-biz" class="select-limit" onchange="renderTableB_Biz()">
-                            <option value="10" selected>10 筆</option>
-                            <option value="20">20 筆</option>
-                            <option value="30">30 筆</option>
-                            <option value="50">50 筆</option>
-                            <option value="100">100 筆</option>
+                            <option value="5">最新 5 筆</option>
+                            <option value="10" selected>最新 10 筆</option>
+                            <option value="20">最新 20 筆</option>
                         </select>
+                        <button onclick="exportCSVB_Biz()" style="background:var(--purple-light); color:#000; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; margin-left:8px;">📥 匯出 CSV</button>
                     </div>
-                    <button onclick="exportCSVB_Biz()" style="background:var(--purple-dark); color:var(--purple-light); border:1px solid var(--purple); padding:6px 14px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.85em;">匯出 B-2 DDA CSV</button>
                 </div>
                 <div style="overflow-x:auto;">
                     <table>
                         <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>DDA 系統強度</th>
-                                <th>連擊數 (Combo)</th>
-                                <th>單局時長 (s)</th>
-                                <th>心流指數</th>
-                                <th>廣告轉化 (%)</th>
-                                <th>次日留存 (%)</th>
-                            </tr>
+                            <tr><th>#</th><th>強度 (%)</th><th>Combo</th><th>停留時間</th><th>心流指數</th><th>廣告轉化</th><th>留存率</th></tr>
                         </thead>
                         <tbody id="log-body-b-biz">
-                            <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無 DDA 模擬數據，請點擊上方按鈕執行運算</td></tr>
+                            <tr><td colspan="7" style="text-align:center; color:#64748b;">尚無模擬數據</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-
     </div>
-
 </div>
 
 <script>
-    // 獨立的數據紀錄陣列 (三分區)
-    let logsA = [];         // 區塊 A
+    // --- 全局變數宣告（放在最上方避免 Temporal Dead Zone 錯誤） ---
+    let logsA = [];         // 區塊 A 紀錄
     let logsB_Info = [];    // 區塊 B-1 (資訊類)
     let logsB_Biz = [];     // 區塊 B-2 (商業類)
     let currentBattery = 1.0;
+    let currentChartMode = 'step'; // 'step' 或 'scale'
+    let scaleDataPoints = [];      // 儲存不同 N 筆數測試結果
 
     // --- 頂層頁籤切換 ---
     function switchMainTab(type) {
@@ -457,12 +424,17 @@
     }
 
     // --- 區塊 A：綠色軟體工程 (Eco-Mode) 邏輯 ---
-    const batterySlider = document.getElementById('mock-battery');
-    batterySlider.addEventListener('input', (e) => {
-        currentBattery = e.target.value / 100;
-        document.getElementById('mock-val').innerText = e.target.value;
-        updateCurrentMode();
-    });
+    function setupBatterySlider() {
+        const batterySlider = document.getElementById('mock-battery');
+        if (batterySlider) {
+            batterySlider.addEventListener('input', (e) => {
+                currentBattery = e.target.value / 100;
+                document.getElementById('mock-val').innerText = e.target.value;
+                updateCurrentMode();
+                renderChart();
+            });
+        }
+    }
 
     function getActiveConfig() {
         if (currentBattery > 0.50) {
@@ -507,8 +479,10 @@
     function updateCurrentMode() {
         const config = getActiveConfig();
         const badge = document.getElementById('mode-badge');
-        badge.innerText = config.name;
-        badge.style.backgroundColor = config.badgeColor;
+        if (badge) {
+            badge.innerText = config.name;
+            badge.style.backgroundColor = config.badgeColor;
+        }
     }
 
     function runGreenBenchmark() {
@@ -548,8 +522,6 @@
         document.getElementById('res-green-carbon').innerText = mgCO2e.toFixed(4) + " mgCO2e";
         document.getElementById('res-green-qoe').innerText = qoeScore + " %";
 
-        
-
         // 寫入區塊 A Log
         logsA.push({
             id: logsA.length + 1,
@@ -561,12 +533,12 @@
             qoe: qoeScore + "%"
         });
         renderTableA();
-        // 在 runGreenBenchmark() 的最後面加上這兩行：
+
         scaleDataPoints.push({ size: dataSize, time: durationMs });
-        scaleDataPoints.sort((a, b) => a.size - b.size); // 依資料量排序
+        scaleDataPoints.sort((a, b) => a.size - b.size);
         renderChart();
     }
-    // 獨立於 <script> 內部的完整函數
+
     function runPromptBenchmark() {
         const promptType = document.getElementById('cfg-prompt-type').value;
         const size = parseInt(document.getElementById('cfg-prompt-size').value) || 30000;
@@ -576,7 +548,6 @@
         let watt = 15.0; // 預估晶片功率 (W)
         let algoName = "";
     
-        // 模擬 4 種 AI 指令產出的演算法執行過程
         if (promptType === 'Baseline') {
             watt = 15.0;
             algoName = "Baseline: 巢狀搜尋 O(N²)";
@@ -598,27 +569,15 @@
     
         const duration = performance.now() - start;
         const energyKWh = (watt * (duration / 1000 / 3600)) / 1000;
-        const sci = energyKWh * 494000; // mgCO2e (電力排碳係數 0.494 kg/kWh)
+        const sci = energyKWh * 494000; // mgCO2e
         const qoeScore = promptType === 'Baseline' ? 45 : 95;
     
-        // 更新面板數據
         document.getElementById('res-green-time').innerText = duration.toFixed(2) + " ms";
         document.getElementById('res-green-algo').innerText = algoName;
         document.getElementById('res-green-watt').innerText = watt.toFixed(1) + " W";
         document.getElementById('res-green-carbon').innerText = sci.toFixed(4) + " mgCO2e";
         document.getElementById('res-green-qoe').innerText = qoeScore + " %";
     
-        // 寫入區塊 A 歷史紀錄 Log
-        logsA.push({
-            id: logsA.length + 1,
-            mode: `Prompt: ${promptType}`,
-            size: size,
-            time: duration.toFixed(2) + " ms",
-            watt: watt.toFixed(1) + " W",
-            carbon: sci.toFixed(4),
-            qoe: qoeScore + "%"
-        });
-        renderTableA();
         logsA.push({
             id: logsA.length + 1,
             mode: `Prompt: ${promptType}`,
@@ -630,11 +589,9 @@
         });
         renderTableA();
     
-        // 🌟 新增：將 Prompt 測試點壓入 Canvas 圖表陣列並重新繪製
         scaleDataPoints.push({ size: size, time: duration });
         scaleDataPoints.sort((a, b) => a.size - b.size);
         renderChart();
-}
     }
 
     // --- 區塊 B-1：碰撞與能耗 邏輯 ---
@@ -658,7 +615,6 @@
         document.getElementById('res-col-sci').innerText = ((watt * (duration / 1000 / 3600) / 1000) * 494000).toFixed(4) + " mgCO2e";
         document.getElementById('res-col-qoe').innerText = qoe + " %";
 
-        // 寫入 B-1 獨立 Log
         logsB_Info.push({
             id: logsB_Info.length + 1,
             algo: algo === 'brute' ? 'Brute Force O(N×M)' : 'Spatial Hash O(N+M)',
@@ -670,8 +626,6 @@
         });
         renderTableB_Info();
     }
-    let currentChartMode = 'step'; // 'step' 或 'scale'
-    let scaleDataPoints = [];      // 儲存不同 N 筆數測試結果
     
     // 繪圖模式切換
     function switchChartMode(mode) {
@@ -690,8 +644,9 @@
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         
-        // 自適應高解析度 Rendering
         const rect = canvas.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
         canvas.width = rect.width * window.devicePixelRatio;
         canvas.height = rect.height * window.devicePixelRatio;
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
@@ -702,7 +657,6 @@
     
         ctx.clearRect(0, 0, width, height);
     
-        // 繪製座標軸網格
         ctx.strokeStyle = '#334155';
         ctx.lineWidth = 1;
         ctx.beginPath();
@@ -723,7 +677,6 @@
         }
     }
     
-    // 1. 繪製電量自適應降級階梯圖 (Eco-Mode Step Curve)
     function drawStepChart(ctx, width, height, padding) {
         const pWatt = parseFloat(document.getElementById('cfg-p-watt').value) || 15.0;
         const bWatt = parseFloat(document.getElementById('cfg-b-watt').value) || 8.5;
@@ -737,7 +690,6 @@
         const getX = (battery) => padding + (1 - battery / 100) * plotW;
         const getY = (watt) => height - padding - (watt / maxWatt) * plotH;
     
-        // 階梯折線路徑 (100% -> 50% -> 25% -> 10% -> 0%)
         const points = [
             { b: 100, w: pWatt },
             { b: 50,  w: pWatt },
@@ -749,7 +701,6 @@
             { b: 0,   w: uWatt }
         ];
     
-        // 填滿階梯下方顏色區塊 (漸層綠)
         const gradient = ctx.createLinearGradient(0, padding, 0, height - padding);
         gradient.addColorStop(0, 'rgba(16, 185, 129, 0.35)');
         gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
@@ -762,7 +713,6 @@
         ctx.fillStyle = gradient;
         ctx.fill();
     
-        // 繪製亮綠色階梯外框線
         ctx.beginPath();
         ctx.strokeStyle = '#00ffcc';
         ctx.lineWidth = 3;
@@ -772,7 +722,6 @@
         });
         ctx.stroke();
     
-        // 繪製目前滑桿指示燈 (紅點標記)
         const curB = currentBattery * 100;
         const curConfig = getActiveConfig();
         const curX = getX(curB);
@@ -786,7 +735,6 @@
         ctx.lineWidth = 2;
         ctx.stroke();
     
-        // 繪製座標軸數據標籤
         ctx.fillStyle = '#94a3b8';
         ctx.font = '10px sans-serif';
         ctx.fillText('100%', getX(100) - 10, height - padding + 15);
@@ -799,7 +747,6 @@
         ctx.fillText(`${uWatt}W`, padding - 30, getY(uWatt) + 4);
     }
     
-    // 2. 繪製資料規模 (N) 能耗與耗時折線圖
     function drawScaleLineChart(ctx, width, height, padding) {
         if (scaleDataPoints.length === 0) {
             ctx.fillStyle = '#64748b';
@@ -818,7 +765,6 @@
         const getX = (n) => padding + (n / maxN) * plotW;
         const getY = (t) => height - padding - (t / maxT) * plotH;
     
-        // 畫線
         ctx.beginPath();
         ctx.strokeStyle = '#38bdf8';
         ctx.lineWidth = 2;
@@ -828,7 +774,6 @@
         });
         ctx.stroke();
     
-        // 畫節點
         scaleDataPoints.forEach(pt => {
             ctx.beginPath();
             ctx.arc(getX(pt.size), getY(pt.time), 4, 0, Math.PI * 2);
@@ -837,7 +782,6 @@
         });
     }
     
-    // --- 區塊 B-2：商業 DDA 邏輯 ---
     function runBizSim() {
         const intensity = parseInt(document.getElementById('cfg-biz-intensity').value) || 100;
         const combo = parseInt(document.getElementById('cfg-biz-combo').value) || 0;
@@ -853,7 +797,6 @@
         document.getElementById('res-biz-adrate').innerText = adRate + " %";
         document.getElementById('res-biz-retention').innerText = retention + " %";
 
-        // 寫入 B-2 獨立 Log
         logsB_Biz.push({
             id: logsB_Biz.length + 1,
             intensity: intensity + "%",
@@ -866,14 +809,12 @@
         renderTableB_Biz();
     }
 
-
-    // --- 歷史紀錄渲染與筆數切換 ---
     function renderTableA() {
         const tbody = document.getElementById('log-body-a');
-        if (logsA.length === 0) return;
+        if (!tbody || logsA.length === 0) return;
 
         const limit = parseInt(document.getElementById('limit-green').value) || 10;
-        const visibleLogs = logsA.slice(-limit).reverse(); // 顯示最新發生的紀錄
+        const visibleLogs = logsA.slice(-limit).reverse();
 
         tbody.innerHTML = visibleLogs.map(l => `
             <tr>
@@ -890,7 +831,7 @@
 
     function renderTableB_Info() {
         const tbody = document.getElementById('log-body-b-info');
-        if (logsB_Info.length === 0) return;
+        if (!tbody || logsB_Info.length === 0) return;
 
         const limit = parseInt(document.getElementById('limit-neon-info').value) || 10;
         const visibleLogs = logsB_Info.slice(-limit).reverse();
@@ -910,7 +851,7 @@
 
     function renderTableB_Biz() {
         const tbody = document.getElementById('log-body-b-biz');
-        if (logsB_Biz.length === 0) return;
+        if (!tbody || logsB_Biz.length === 0) return;
 
         const limit = parseInt(document.getElementById('limit-neon-biz').value) || 10;
         const visibleLogs = logsB_Biz.slice(-limit).reverse();
@@ -928,8 +869,6 @@
         `).join('');
     }
 
-
-    // --- CSV 數據獨立匯出 ---
     function exportCSVA() {
         if(logsA.length === 0) return alert("區塊 A 尚無數據可匯出！");
         let csv = "data:text/csv;charset=utf-8,ID,Mode,DataSize,DurationTime,Watt,Carbon_mgCO2e,QoE\n";
@@ -965,11 +904,13 @@
         a.download = "neon_dda_telemetry_b2.csv"; 
         a.click();
     }
-    
-    // 初始化頁面
-    updateCurrentMode();
-    renderChart();
-</script>
 
+    // 初始化頁面
+    document.addEventListener('DOMContentLoaded', () => {
+        setupBatterySlider();
+        updateCurrentMode();
+        renderChart();
+    });
+</script>
 </body>
 </html>
