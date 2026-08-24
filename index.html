@@ -765,18 +765,6 @@
         a.click();
     }
     
-    async function runBatchBenchmark() {
-        const times = [];
-        for (let i = 0; i < 50; i++) {
-            const start = performance.now();
-            runGreenBenchmark(); // 執行單次跑分
-            times.push(performance.now() - start);
-            await new Promise(resolve => setTimeout(resolve, 10)); // 防止 UI 凍結
-        }
-        const avg = times.reduce((a, b) => a + b, 0) / times.length;
-        alert(`50 次重複實驗完成！平均耗時：${avg.toFixed(2)} ms`);
-    }
-    
     // 初始化頁面
     updateCurrentMode();
 </script>
